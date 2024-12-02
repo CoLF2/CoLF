@@ -1,0 +1,5 @@
+(executable
+ (public_name lftest08)
+ (name main)
+ (libraries lftest08 lftest08_v2)
+ (modes byte exe))

@@ -1,0 +1,73 @@
+{
+  "name": "colf-lang",
+  "displayName": "CoLF Lang",
+  "description": "Syntax highlighting for CoLF",
+  "repository": {
+    "url": "https://github.com/yaene/vscode-twelf-lang"
+  },
+  "publisher": "up",
+  "version": "0.0.5",
+  "engines": {
+    "vscode": "^1.75.0"
+  },
+  "categories": [
+    "Programming Languages"
+  ],
+  "main": "./extension.js",
+  "activationEvents": [
+    "onLanguage:colf",
+    "onCommand:colf-server.restart"
+  ],
+  "contributes": {
+    "commands": [
+      {
+        "command": "colf-server.restart",
+        "title": "Restart",
+        "category": "CoLF Server"
+      }
+    ],
+    "languages": [
+      {
+        "id": "colf",
+        "aliases": [
+          "CoLF",
+          "colf"
+        ],
+        "extensions": [
+          ".colf"
+        ],
+        "configuration": "./language-configuration.json",
+        "icon": {
+        
+          "dark": "./colf-icon.svg",
+          "light": "./colf-icon.svg"
+        }
+      }
+    ],
+    "grammars": [
+      {
+        "language": "colf",
+        "scopeName": "source.colf",
+        "path": "./syntaxes/colf.tmLanguage.json"
+      }
+    ],
+    "configuration": {
+      "title": "CoLF",
+      "properties": {
+        "colf-server-path": {
+          "type": "string",
+          "title": "CoLF interpreter path",
+          "default": "/usr/local/bin/colf",
+          "comment": "defaults to /usr/local/bin/colf"
+        },
+        "show-errors-view": {
+          "type": "boolean",
+          "title": "Show errors view",
+          "default": true,
+          "description": "Show the errors view on save"
+        }
+      }
+    }
+  },
+  "dependencies": {}
+}

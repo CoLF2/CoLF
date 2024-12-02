@@ -1,0 +1,117 @@
+
+tp : cotype.
+label : type.
+
+itp : type.
+itp/nil : itp.
+itp/cons : label -> tp -> itp -> itp.
+
+& : itp -> tp.
++ : itp -> tp.
+x : tp -> tp -> tp.
+arr : tp -> tp -> tp.
+
+
+1 : tp.
+0 : tp = + itp/nil.
+
+
+%% optional_tp : type.
+%% optional_tp_none : optional_tp.
+%% optional_tp_some : tp -> optional_tp.
+
+lookup : itp -> label -> tp -> type.
+lookup_cons_here : {L : label} {T : tp} {I : itp} lookup (itp/cons L T I) L T.
+lookup_cons_there : {L : label} {T : tp} {I : itp} {L' : label} {O : tp} lookup I L O -> lookup (itp/cons L' T I) L O.
+
+
+push: label.
+pop: label.
+none: label. 
+some: label.
+z : label.
+s : label.
+
+option : tp -> tp = [beta] + (itp/cons none 1 
+                             (itp/cons some beta 
+                             itp/nil)).
+stack : tp -> tp = [alpha] & (itp/cons push (arr alpha (stack alpha)) 
+                             (itp/cons pop (option (x alpha (stack alpha))) 
+                             itp/nil)).
+
+
+qstack1 : tp -> tp = [beta] & (itp/cons push (arr beta (qstack1 beta)) 
+                               (itp/cons pop (option (x beta (qstack2 beta))) 
+                               itp/nil)).
+qstack2 : tp -> tp = [beta] & (itp/cons pop (option (x beta (qstack2 beta))) 
+                               itp/nil).
+
+nat : tp = + (itp/cons z 1 
+              (itp/cons s nat 
+              itp/nil)).
+odd : tp = + (itp/cons s (even) 
+              itp/nil).
+even : tp = + (itp/cons z 1 
+               (itp/cons s (odd) 
+               itp/nil)).
+
+
+subtp : tp -> tp -> cotype.
+subtp/1 : subtp 1 1.
+subtp/x : {A : tp} {B : tp} {A' : tp} {B' : tp} 
+        subtp A A' 
+        -> subtp B B' 
+        -> subtp (x A B) (x A' B').
+subtp/arr : {A : tp} {B : tp} {A' : tp} {B' : tp} 
+           subtp A' A 
+           -> subtp B B' 
+           -> subtp (arr A B) (arr A' B').
+subitp_sub : itp -> itp -> type.
+subitp_sub/nil : subitp_sub itp/nil itp/nil.
+subitp_sub/drop : {L : label} {T : tp} {I : itp} {I' : itp} 
+                  subitp_sub I I' 
+                  -> subitp_sub I (itp/cons L T I').
+subitp_sub/cons : {L : label} {T : tp} {T' : tp} {I : itp}  {I' : itp} 
+                  subtp T T' 
+                  -> subitp_sub I I' 
+                  -> subitp_sub (itp/cons L T I) (itp/cons L T' I').
+
+subitp_sup : itp -> itp -> type.
+subitp_sup/nil : subitp_sup itp/nil itp/nil.
+subitp_sup/drop : {L : label} {T : tp} {I : itp} {I' : itp} 
+                  subitp_sup I I' 
+                  -> subitp_sup (itp/cons L T I) I'.
+subitp_sup/cons : {L : label} {T : tp} {T' : tp}  {I : itp} {I' : itp}
+                    subtp T T' 
+                    -> subitp_sup I I' 
+                    -> subitp_sup (itp/cons L T I) (itp/cons L T' I').
+
+subtp/+ : {A : itp} {B : itp} 
+          subitp_sub A B 
+          -> subtp (+ A) (+ B).
+subtp/& : {A : itp} {B : itp}
+            subitp_sup A B
+            -> subtp (& A) (& B).
+
+nat_def_itp : itp = itp/cons z 1 (itp/cons s nat itp/nil).
+even_def_itp : itp = itp/cons z 1 (itp/cons s odd itp/nil).
+odd_def_itp : itp = itp/cons s even itp/nil.
+
+%separator x.
+
+subitp_even_nat : subitp_sub even_def_itp nat_def_itp = 
+        (subitp_sub/cons z 1 1 (itp/cons s odd itp/nil) (itp/cons s nat itp/nil)
+            (subtp/1) 
+            (subitp_sub/cons s odd nat itp/nil itp/nil 
+                subtp_odd_nat
+                subitp_sub/nil)).
+subitp_odd_nat : subitp_sub odd_def_itp nat_def_itp =
+        (subitp_sub/drop z 1 (itp/cons s even itp/nil) (itp/cons s nat itp/nil)
+            (subitp_sub/cons s even nat itp/nil itp/nil
+                subtp_even_nat
+                (subitp_sub/nil))).
+subtp_even_nat : subtp even nat = 
+    subtp/+ even_def_itp nat_def_itp subitp_even_nat.
+subtp_odd_nat : subtp odd nat =
+    subtp/+ odd_def_itp nat_def_itp subitp_odd_nat.
+

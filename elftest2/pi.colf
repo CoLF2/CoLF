@@ -1,0 +1,54 @@
+chan : type.
+proc: cotype.
+choice : proc -> proc -> proc.
+send : chan -> chan -> proc -> proc.
+recv : chan -> (chan -> proc) -> proc.
+parallel : proc -> proc -> proc.
+new_chan : (chan -> proc) -> proc.
+
+cong : proc -> proc -> type.
+cong/par/sym : {P1 : proc} {P2 : proc} 
+            cong (parallel P2 P1) (parallel P1 P2).
+
+step : proc -> proc -> type.
+step/comm : {C : chan}  {C' : chan} {P1 : chan -> proc} {P2 : proc} {P3 :  proc} {P4 : proc}
+            step 
+                (parallel (choice (recv C ([x] P1 x)) P2) (choice (send C C' P3) P4))
+                (parallel (P1 C') P3).
+step/newchan : {P : chan -> proc} {P' : chan -> proc}
+            ({C : chan} step (P C) (P' C))
+            -> step (new_chan ([x] P x)) (new_chan ([x] P' x)).
+step/l/cong : {P1 : proc} {P2 : proc} {P3 : proc} 
+            cong P1 P2 -> step P2 P3
+            -> step P1 P3.
+               
+
+
+server : chan -> chan -> chan -> proc = 
+    [x] [get] [put] choice (recv put ([y] server y get put)) (send get x (server x get put)) .
+client : chan -> chan -> chan -> proc =
+    [x] [get] [put] choice (send put x (client x get put)) (recv get ([y] client y get put)).
+
+combined_def : chan -> chan -> chan -> proc = 
+    [x] [get] [put] parallel (server x get put) (client x get put).
+combined : proc = new_chan ([x] new_chan ([get] new_chan ([put] combined_def x get put))).
+
+%separator x.
+
+
+one_step : {x : chan} {get : chan} {put : chan} 
+        step (parallel (server x get put) (client x get put)) (parallel (server x get put) (client x get put)) =
+        [x] [get] [put] 
+            step/comm put x ([y] server y get put) (send get x (server x get put)) (client x get put) (recv get ([y] client y get put)).
+
+%separator x.
+
+combined_red_id : step combined combined = 
+    step/newchan ([x] new_chan ([get] new_chan ([put] combined_def x get put))) ([x] new_chan ([get] new_chan ([put] combined_def x get put)))
+    ([x] 
+        step/newchan ([get] new_chan ([put] combined_def x get put)) ([get] new_chan ([put] combined_def x get put))
+        ([get] 
+            step/newchan ([put] combined_def x get put) ([put] combined_def x get put)
+            ([put] 
+                one_step x get put))).
+

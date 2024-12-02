@@ -1,0 +1,9 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="64" height="64" viewBox="0 0 50 50">
+  <!-- <rect x="0" y="0" width="50" height="50" fill="none" stroke="black" stroke-width="1" /> -->
+
+  <!-- Letters -->
+  <text x="2" y="25" fill="red" font-family="Arial" font-size="32" font-weight="bolder">C</text>
+  <text x="23" y="25" fill="red" font-family="Arial" font-size="26" font-weight="bolder">o</text>
+  <text x="13" y="48" fill="red" font-family="Arial" font-size="32" font-weight="bolder">L</text>
+  <text x="31" y="48" fill="red" font-family="Arial" font-size="32" font-weight="bolder">F</text>
+</svg>

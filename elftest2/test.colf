@@ -1,0 +1,18 @@
+nat: type.
+zero: nat.
+succ: nat -> nat.
+
+stream: cotype.
+nil: stream.
+cons: nat -> stream -> stream.
+
+up: nat -> stream = [x] cons x (up (succ x)).
+
+up0: stream = up zero.
+up1: stream = up (succ zero).
+
+id_stream: stream -> stream -> type.
+refl: {S : stream} id_stream S S.
+
+up0_id_up1 : id_stream (cons zero up1) up0 = refl up0.
+

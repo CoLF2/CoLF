@@ -1,0 +1,2 @@
+add/succ : {X : nat} {Y : nat} {Z : nat} add X Y Z -> add (succ X) Y (succ Z).
+add/zero : {X : nat} add zero X X.

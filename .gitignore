@@ -1,0 +1,3 @@
+_build/**
+debug*.txt
+_lazylplogs/[0-9]*.json
