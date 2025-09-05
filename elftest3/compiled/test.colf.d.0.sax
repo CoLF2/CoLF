@@ -1,0 +1,115 @@
+type nat = +{'zero : 1, 'succ : nat}
+
+
+proc nat_dup (d : (nat * nat)) (x0 : nat)  = 
+  write d (x0, x0)
+
+proc nat_dealloc (d : 1) (x0 : nat)  = 
+  write d ()
+
+proc half (d : nat) (x0 : nat)  = 
+  read x0 {
+    | 'zero(x0) => 
+      half_L0zero d x0
+    | 'succ(x0) => 
+      half_L0succ d x0
+  }
+
+proc half_L0succ_1 (d : nat) (x0 : nat)  = 
+  read x0 {
+    | 'succ(x0) => 
+      half_L0succ_1_L0succ d x0
+    | 'zero(x0) => 
+      half_L0succ_L0zero d x0
+  }
+
+proc half_L0succ_1_L0succ (d : nat) (x0 : nat)  = 
+  id d x0
+
+proc half_L0succ (d : nat) (x0 : nat)  = 
+  read x0 {
+    | 'zero(x0) => 
+      half_L0succ_L0zero d x0
+    | 'succ(x0) => 
+      half_L0succ_1_L0succ d x0
+  }
+
+proc half_L0succ_L0zero (d : nat) (x0 : 1)  = 
+  read x0 {
+    | () => 
+      half_L0succ_L0zero_Lunit d
+  }
+
+proc half_L0succ_L0zero_Lunit (d : nat)  = 
+  cut y : 1
+    half_L0succ_L0zero_Lunit_Rzero y
+  write d 'zero y
+
+proc half_L0succ_L0zero_Lunit_Rzero (d : 1)  = 
+  write d ()
+
+proc half_L0zero (d : nat) (x0 : 1)  = 
+  read x0 {
+    | () => 
+      half_L0zero_Lunit d
+  }
+
+proc half_L0zero_Lunit (d : nat)  = 
+  cut y : 1
+    half_L0zero_Lunit_Rzero y
+  write d 'zero y
+
+proc half_L0zero_Lunit_Rzero (d : 1)  = 
+  write d ()
+
+proc two (d : nat)  = 
+  cut y : nat
+    two_Rsucc y
+  write d 'succ y
+
+proc two_Rsucc (d : nat)  = 
+  cut y : nat
+    two_Rsucc_Rsucc y
+  write d 'succ y
+
+proc two_Rsucc_Rsucc (d : nat)  = 
+  cut y : 1
+    two_Rsucc_Rsucc_Rzero y
+  write d 'zero y
+
+proc two_Rsucc_Rsucc_Rzero (d : 1)  = 
+  write d ()
+
+proc four (d : nat)  = 
+  cut y : nat
+    four_Rsucc y
+  write d 'succ y
+
+proc four_Rsucc (d : nat)  = 
+  cut y : nat
+    four_Rsucc_Rsucc y
+  write d 'succ y
+
+proc four_Rsucc_Rsucc (d : nat)  = 
+  cut y : nat
+    four_Rsucc_Rsucc_Rsucc y
+  write d 'succ y
+
+proc four_Rsucc_Rsucc_Rsucc (d : nat)  = 
+  cut y : nat
+    four_Rsucc_Rsucc_Rsucc_Rsucc y
+  write d 'succ y
+
+proc four_Rsucc_Rsucc_Rsucc_Rsucc (d : nat)  = 
+  cut y : 1
+    four_Rsucc_Rsucc_Rsucc_Rsucc_Rzero y
+  write d 'zero y
+
+proc four_Rsucc_Rsucc_Rsucc_Rsucc_Rzero (d : 1)  = 
+  write d ()
+
+proc main (d : nat)  = 
+  cut y : nat
+    four y
+  half d y
+

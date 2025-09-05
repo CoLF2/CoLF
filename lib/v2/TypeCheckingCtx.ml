@@ -22,6 +22,7 @@ module type TYPE_CHECKING_CTX = sig
 
   val get_all_global_names : t -> string list
   val get_all_names : t -> string list
+  val name_exists : t -> string -> bool
 
   val assert_eq_true : t -> A.t * A.t -> unit (* only returns true if the result context is definitely consistent *)
 
@@ -155,6 +156,9 @@ module TypeCheckingCtx : TYPE_CHECKING_CTX = struct
     let global_names = get_all_global_names ctx in
     let internal_names = get_all_internal_names ctx in
     local_names @ global_names @ internal_names
+
+  let name_exists (ctx : t) (name : string) : bool =
+    List.mem name (get_all_names ctx)
 
   let assert_bool (b : bool) (s : string) : unit = 
     if not b then Errors.raise_with_explicit_extent None s else ()
@@ -306,6 +310,11 @@ module TypeCheckingCtx : TYPE_CHECKING_CTX = struct
     | A.N(N.Lam, [[x1], body1]), A.N(N.Lam, [[x2], body2]) -> 
       ( let body2' = A.subst (A.free_var x1) x2 body2 in
         assert_eq_true_rec eq_ctx ctx (body1, body2')
+      )
+    | A.N(N.Pi, [[], dom1; [x1], cod1]), A.N(N.Pi, [[], dom2; [x2], cod2]) -> 
+      ( let _ = assert_eq_true_rec eq_ctx ctx (dom1, dom2) in
+        let cod2' = A.subst (A.free_var x1) x2 cod2 in
+        assert_eq_true_rec eq_ctx ctx (cod1, cod2')
       )
     | _ -> failwith ("assert_eq_true: not implemented for " ^ PP.show_term lhs ^ " ?= " ^ PP.show_term rhs) 
     (* | A.N(nt1, args1), A.N(nt2, args2) -> 

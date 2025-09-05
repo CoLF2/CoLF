@@ -1,0 +1,17 @@
+nat : cotype.
+zero : 1 -> nat.
+succ : nat -> nat.
+
+add : nat , nat >=> nat.
+two :  >=> nat.
+add' : nat , nat >=> nat.
+main :  >=> nat.
+
+add/0 : (zero ()), B >= add >= B.
+add/s : A, B >= add >= C ->
+   (succ A), B >= add >= (succ C).
+two/def :  >= two >= (succ (succ (zero ()))).
+add'/def : B, A >= add >= C ->
+   A, B >= add' >= C.
+main/def : (succ (succ (zero ()))), (succ (succ (zero ()))) >= add' >= C ->
+    >= main >= C.

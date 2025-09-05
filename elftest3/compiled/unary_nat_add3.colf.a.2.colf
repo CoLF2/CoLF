@@ -1,0 +1,16 @@
+nat : cotype.
+zero : nat.
+succ : nat -> nat.
+add : nat -> nat -> nat -> cotype.
+%mode (add + + -).
+add/0 : {B : nat} (add zero B B).
+add/s : {A : nat} {B : nat} {C : nat} (add A B C) -> (add (succ A) B (succ C)).
+two : nat -> cotype.
+two/def : (two (succ (succ zero))).
+%mode (two -).
+add' : nat -> nat -> nat -> cotype.
+%mode (add' +A +B -C).
+add'/def : {A : nat} {B : nat} {C : nat} (add B A C) -> (add' A B C).
+main : nat -> cotype.
+%mode (main -).
+main/def : {C : nat} (add' (succ (succ zero)) (succ (succ zero)) C) -> (main C).

@@ -1,0 +1,190 @@
+bin : cotype.
+stream : cotype.
+e : 1 -> bin.
+b0 : bin -> bin.
+b1 : bin -> bin.
+scons : (bin * stream) -> stream.
+
+get_b0 :  >=> bin.
+get_b0_Re :  >=> 1.
+bsucc : bin >=> bin.
+bsucc_L0b1 : bin >=> bin.
+bsucc_L0b0 : bin >=> bin.
+bsucc_L0b0_Rb1 : bin >=> bin.
+bsucc_L0e : 1 >=> bin.
+bsucc_L0e_Lunit :  >=> bin.
+bsucc_L0e_Lunit_Rb1 :  >=> bin.
+bsucc_L0e_Lunit_Rb1_Re :  >=> 1.
+bpred : bin >=> bin.
+bpred_L0b1.1.1 : bin >=> bin.
+bpred_L0b1.1.1_L0b1 : bin >=> bin.
+bpred_L0b1.1.1_L0b1_Rb0 : bin >=> bin.
+bpred_L0b1.1.1_L0b1_Rb0_Rb1 : bin >=> bin.
+bpred_L0b1.1 : bin >=> bin.
+bpred_L0b1.1_L0b0 : bin >=> bin.
+bpred_L0b1.1_L0b0_Rb0 : bin >=> bin.
+bpred_L0b1.1_L0b0_Rb0_Rb0 : bin >=> bin.
+bpred_L0b1 : bin >=> bin.
+bpred_L0b1_L0e : 1 >=> bin.
+bpred_L0b1_L0e_Lunit :  >=> bin.
+bpred_L0b1_L0e_Lunit_Re :  >=> 1.
+bpred_L0b0 : bin >=> bin.
+bpred_L0e : 1 >=> bin.
+bpred_L0e_Lunit :  >=> bin.
+bpred_L0e_Lunit_Re :  >=> 1.
+bin_dup : bin >=> (bin * bin).
+bin_dup_L0b1 : bin >=> (bin * bin).
+bin_dup_L0b1_cut : (bin * bin) >=> (bin * bin).
+bin_dup_L0b1_cut_Lpair : bin , bin >=> (bin * bin).
+bin_dup_L0b1_cut_Lpair_Rleft : bin >=> bin.
+bin_dup_L0b1_cut_Lpair_Rleft_Rb1 : bin >=> bin.
+bin_dup_L0b1_cut_Lpair_Rright : bin >=> bin.
+bin_dup_L0b1_cut_Lpair_Rright_Rb1 : bin >=> bin.
+bin_dup_L0b0 : bin >=> (bin * bin).
+bin_dup_L0b0_cut : (bin * bin) >=> (bin * bin).
+bin_dup_L0b0_cut_Lpair : bin , bin >=> (bin * bin).
+bin_dup_L0b0_cut_Lpair_Rleft : bin >=> bin.
+bin_dup_L0b0_cut_Lpair_Rleft_Rb0 : bin >=> bin.
+bin_dup_L0b0_cut_Lpair_Rright : bin >=> bin.
+bin_dup_L0b0_cut_Lpair_Rright_Rb0 : bin >=> bin.
+bin_dup_L0e : 1 >=> (bin * bin).
+bin_dup_L0e_Lunit :  >=> (bin * bin).
+bin_dup_L0e_Lunit_Rleft :  >=> bin.
+bin_dup_L0e_Lunit_Rleft_Re :  >=> 1.
+bin_dup_L0e_Lunit_Rright :  >=> bin.
+bin_dup_L0e_Lunit_Rright_Re :  >=> 1.
+up : bin >=> stream.
+up_cut : (bin * bin) >=> stream.
+up_cut_Lpair : bin , bin >=> stream.
+up_cut_Lpair_cut : bin , bin >=> stream.
+up_cut_Lpair_cut_cut : bin , stream >=> stream.
+up_cut_Lpair_cut_cut_Rscons : bin , stream >=> (bin * stream).
+up_cut_Lpair_cut_cut_Rscons_Rleft : bin >=> bin.
+up_cut_Lpair_cut_cut_Rscons_Rright : stream >=> stream.
+main :  >=> stream.
+
+get_b0/e :  >= get_b0_Re >= ().
+get_b0_Re_intro :  >= get_b0_Re >= Y ->
+    >= get_b0 >= (e Y).
+bsucc/e :  >= bsucc_L0e_Lunit_Rb1_Re >= ().
+bsucc_L0e_Lunit_Rb1_Re_intro :  >= bsucc_L0e_Lunit_Rb1_Re >= Y ->
+    >= bsucc_L0e_Lunit_Rb1 >= (e Y).
+bsucc_L0e_Lunit_Rb1_intro :  >= bsucc_L0e_Lunit_Rb1 >= Y ->
+    >= bsucc_L0e_Lunit >= (b1 Y).
+bsucc_L0e_Lunit_intro :  >= bsucc_L0e_Lunit >= Y ->
+   () >= bsucc_L0e >= Y.
+bsucc_L0e_intro : X0 >= bsucc_L0e >= Y ->
+   (e X0) >= bsucc >= Y.
+bsucc/b0 : A >= bsucc_L0b0_Rb1 >= A.
+bsucc_L0b0_Rb1_intro : X0 >= bsucc_L0b0_Rb1 >= Y ->
+   X0 >= bsucc_L0b0 >= (b1 Y).
+bsucc_L0b0_intro : X0 >= bsucc_L0b0 >= Y ->
+   (b0 X0) >= bsucc >= Y.
+bsucc/b1 : A >= bsucc >= B ->
+   A >= bsucc_L0b1 >= (b0 B).
+bsucc_L0b1_intro : X0 >= bsucc_L0b1 >= Y ->
+   (b1 X0) >= bsucc >= Y.
+bpred/e :  >= bpred_L0e_Lunit_Re >= ().
+bpred_L0e_Lunit_Re_intro :  >= bpred_L0e_Lunit_Re >= Y ->
+    >= bpred_L0e_Lunit >= (e Y).
+bpred_L0e_Lunit_intro :  >= bpred_L0e_Lunit >= Y ->
+   () >= bpred_L0e >= Y.
+bpred_L0e_intro : X0 >= bpred_L0e >= Y ->
+   (e X0) >= bpred >= Y.
+bpred/b0 : A >= bpred >= B ->
+   A >= bpred_L0b0 >= (b1 B).
+bpred_L0b0_intro : X0 >= bpred_L0b0 >= Y ->
+   (b0 X0) >= bpred >= Y.
+bpred/b1e :  >= bpred_L0b1_L0e_Lunit_Re >= ().
+bpred_L0b1_L0e_Lunit_Re_intro :  >= bpred_L0b1_L0e_Lunit_Re >= Y ->
+    >= bpred_L0b1_L0e_Lunit >= (e Y).
+bpred_L0b1_L0e_Lunit_intro :  >= bpred_L0b1_L0e_Lunit >= Y ->
+   () >= bpred_L0b1_L0e >= Y.
+bpred_L0b1_L0e_intro : X0 >= bpred_L0b1_L0e >= Y ->
+   (e X0) >= bpred_L0b1 >= Y.
+bpred_L0b1_intro : X0 >= bpred_L0b1 >= Y ->
+   (b1 X0) >= bpred >= Y.
+bpred/b1b0 : A >= bpred_L0b1.1_L0b0_Rb0_Rb0 >= A.
+bpred_L0b1.1_L0b0_Rb0_Rb0_intro : X0 >= bpred_L0b1.1_L0b0_Rb0_Rb0 >= Y ->
+   X0 >= bpred_L0b1.1_L0b0_Rb0 >= (b0 Y).
+bpred_L0b1.1_L0b0_Rb0_intro : X0 >= bpred_L0b1.1_L0b0_Rb0 >= Y ->
+   X0 >= bpred_L0b1.1_L0b0 >= (b0 Y).
+bpred_L0b1.1_L0b0_intro : X0 >= bpred_L0b1.1_L0b0 >= Y ->
+   (b0 X0) >= bpred_L0b1.1 >= Y.
+bpred_L0b1.1_intro : X0 >= bpred_L0b1.1 >= Y ->
+   (b1 X0) >= bpred >= Y.
+bpred/b1b1 : A >= bpred_L0b1.1.1_L0b1_Rb0_Rb1 >= A.
+bpred_L0b1.1.1_L0b1_Rb0_Rb1_intro : X0 >= bpred_L0b1.1.1_L0b1_Rb0_Rb1 >= Y ->
+   X0 >= bpred_L0b1.1.1_L0b1_Rb0 >= (b1 Y).
+bpred_L0b1.1.1_L0b1_Rb0_intro : X0 >= bpred_L0b1.1.1_L0b1_Rb0 >= Y ->
+   X0 >= bpred_L0b1.1.1_L0b1 >= (b0 Y).
+bpred_L0b1.1.1_L0b1_intro : X0 >= bpred_L0b1.1.1_L0b1 >= Y ->
+   (b1 X0) >= bpred_L0b1.1.1 >= Y.
+bpred_L0b1.1.1_intro : X0 >= bpred_L0b1.1.1 >= Y ->
+   (b1 X0) >= bpred >= Y.
+bin_dup/e :  >= bin_dup_L0e_Lunit_Rleft >= L ->
+    >= bin_dup_L0e_Lunit_Rright >= R ->
+    >= bin_dup_L0e_Lunit >= (L , R).
+bin_dup_L0e_Lunit_Rleft_intro :  >= bin_dup_L0e_Lunit_Rleft_Re >= ().
+bin_dup_L0e_Lunit_Rleft_Re_intro :  >= bin_dup_L0e_Lunit_Rleft_Re >= Y ->
+    >= bin_dup_L0e_Lunit_Rleft >= (e Y).
+bin_dup_L0e_Lunit_Rright_intro :  >= bin_dup_L0e_Lunit_Rright_Re >= ().
+bin_dup_L0e_Lunit_Rright_Re_intro :  >= bin_dup_L0e_Lunit_Rright_Re >= Y ->
+    >= bin_dup_L0e_Lunit_Rright >= (e Y).
+bin_dup_L0e_Lunit_intro :  >= bin_dup_L0e_Lunit >= Y ->
+   () >= bin_dup_L0e >= Y.
+bin_dup_L0e_intro : X0 >= bin_dup_L0e >= Y ->
+   (e X0) >= bin_dup >= Y.
+bin_dup/b0 : A >= bin_dup >= Y ->
+   Y >= bin_dup_L0b0_cut >= U ->
+   A >= bin_dup_L0b0 >= U.
+bin_dup_L0b0_cut_intro : B >= bin_dup_L0b0_cut_Lpair_Rleft >= L ->
+   C >= bin_dup_L0b0_cut_Lpair_Rright >= R ->
+   B, C >= bin_dup_L0b0_cut_Lpair >= (L , R).
+bin_dup_L0b0_cut_Lpair_Rleft_intro : B >= bin_dup_L0b0_cut_Lpair_Rleft_Rb0 >= B.
+bin_dup_L0b0_cut_Lpair_Rleft_Rb0_intro : X0 >= bin_dup_L0b0_cut_Lpair_Rleft_Rb0 >= Y ->
+   X0 >= bin_dup_L0b0_cut_Lpair_Rleft >= (b0 Y).
+bin_dup_L0b0_cut_Lpair_Rright_intro : C >= bin_dup_L0b0_cut_Lpair_Rright_Rb0 >= C.
+bin_dup_L0b0_cut_Lpair_Rright_Rb0_intro : X0 >= bin_dup_L0b0_cut_Lpair_Rright_Rb0 >= Y ->
+   X0 >= bin_dup_L0b0_cut_Lpair_Rright >= (b0 Y).
+bin_dup_L0b0_cut_Lpair_intro : Z1, Z2 >= bin_dup_L0b0_cut_Lpair >= Y ->
+   (Z1 , Z2) >= bin_dup_L0b0_cut >= Y.
+bin_dup_L0b0_intro : X0 >= bin_dup_L0b0 >= Y ->
+   (b0 X0) >= bin_dup >= Y.
+bin_dup/b1 : A >= bin_dup >= Y ->
+   Y >= bin_dup_L0b1_cut >= U ->
+   A >= bin_dup_L0b1 >= U.
+bin_dup_L0b1_cut_intro : B >= bin_dup_L0b1_cut_Lpair_Rleft >= L ->
+   C >= bin_dup_L0b1_cut_Lpair_Rright >= R ->
+   B, C >= bin_dup_L0b1_cut_Lpair >= (L , R).
+bin_dup_L0b1_cut_Lpair_Rleft_intro : B >= bin_dup_L0b1_cut_Lpair_Rleft_Rb1 >= B.
+bin_dup_L0b1_cut_Lpair_Rleft_Rb1_intro : X0 >= bin_dup_L0b1_cut_Lpair_Rleft_Rb1 >= Y ->
+   X0 >= bin_dup_L0b1_cut_Lpair_Rleft >= (b1 Y).
+bin_dup_L0b1_cut_Lpair_Rright_intro : C >= bin_dup_L0b1_cut_Lpair_Rright_Rb1 >= C.
+bin_dup_L0b1_cut_Lpair_Rright_Rb1_intro : X0 >= bin_dup_L0b1_cut_Lpair_Rright_Rb1 >= Y ->
+   X0 >= bin_dup_L0b1_cut_Lpair_Rright >= (b1 Y).
+bin_dup_L0b1_cut_Lpair_intro : Z1, Z2 >= bin_dup_L0b1_cut_Lpair >= Y ->
+   (Z1 , Z2) >= bin_dup_L0b1_cut >= Y.
+bin_dup_L0b1_intro : X0 >= bin_dup_L0b1 >= Y ->
+   (b1 X0) >= bin_dup >= Y.
+up/def : X >= bin_dup >= Y ->
+   Y >= up_cut >= U ->
+   X >= up >= U.
+up_cut_intro : X1 >= bsucc >= Y ->
+   X2, Y >= up_cut_Lpair_cut >= U ->
+   X1, X2 >= up_cut_Lpair >= U.
+up_cut_Lpair_cut_intro : Y >= up >= Y_1 ->
+   X2, Y_1 >= up_cut_Lpair_cut_cut >= U ->
+   X2, Y >= up_cut_Lpair_cut >= U.
+up_cut_Lpair_cut_cut_intro : X2 >= up_cut_Lpair_cut_cut_Rscons_Rleft >= L ->
+   S >= up_cut_Lpair_cut_cut_Rscons_Rright >= R ->
+   X2, S >= up_cut_Lpair_cut_cut_Rscons >= (L , R).
+up_cut_Lpair_cut_cut_Rscons_Rleft_intro : X2 >= up_cut_Lpair_cut_cut_Rscons_Rleft >= X2.
+up_cut_Lpair_cut_cut_Rscons_Rright_intro : S >= up_cut_Lpair_cut_cut_Rscons_Rright >= S.
+up_cut_Lpair_cut_cut_Rscons_intro : X0, X1 >= up_cut_Lpair_cut_cut_Rscons >= Y ->
+   X0, X1 >= up_cut_Lpair_cut_cut >= (scons Y).
+up_cut_Lpair_intro : Z1, Z2 >= up_cut_Lpair >= Y ->
+   (Z1 , Z2) >= up_cut >= Y.
+main/def :  >= get_b0 >= X ->
+   X >= up >= S ->
+    >= main >= S.

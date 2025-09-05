@@ -1,0 +1,23 @@
+nat : cotype.
+nat_dup : nat -> nat -> nat -> cotype.
+nat_dealloc : nat -> cotype.
+nat_dup_def : {Nat : nat} (nat_dup Nat Nat Nat).
+nat_dealloc_def : {Nat : nat} (nat_dealloc Nat).
+%mode (nat_dup + - -).
+%mode (nat_dealloc +).
+zero : nat.
+succ : nat -> nat.
+half : nat -> nat -> cotype.
+%mode (half + -).
+half/z : (half zero zero).
+half/s2 : (half (succ zero) zero).
+half/s : {X : nat} (half (succ (succ X)) X).
+two : nat -> cotype.
+two_def : (two (succ (succ zero))).
+%mode (two -).
+four : nat -> cotype.
+four_def : (four (succ (succ (succ (succ zero))))).
+%mode (four -).
+main : nat -> cotype.
+%mode (main -).
+main/def : {C : nat} {Four : nat} (four Four) -> (half Four C) -> (main C).

@@ -1,4 +1,6 @@
 
+module Ext = AbtLib.Extent
+
 module type OPERATOR = sig
 
   type t_expr
@@ -14,7 +16,7 @@ module type OPERATOR = sig
                  }
 
   type parsed_elem = 
-    | PKeyword of string
+    | PKeyword of Ext.t_str
     | PBinding of string
     | PComponent of t_expr
     | PArbitraryContent of string 
@@ -22,7 +24,7 @@ module type OPERATOR = sig
   type operator = {
     id : int;
     components : component list;
-    reductions : parsed_elem list -> t_expr list; (* can drop comments *)
+    reductions : parsed_elem list -> t_expr list option; (* can drop comments, none indicates no reduction*)
   }
 
   val debug_print_component: component -> string
@@ -45,7 +47,7 @@ module CoLFOperator : OPERATOR with type t_expr = CoLFAbt.CoLFAbt.t = struct
                  }
 
   type parsed_elem = 
-    | PKeyword of string
+    | PKeyword of Ext.t_str
     | PBinding of string
     | PComponent of t_expr
     | PArbitraryContent of string 
@@ -53,7 +55,7 @@ module CoLFOperator : OPERATOR with type t_expr = CoLFAbt.CoLFAbt.t = struct
   type operator = {
     id : int;
     components : component list;
-    reductions : parsed_elem list -> t_expr list; (* can drop comments *)
+    reductions : parsed_elem list -> t_expr list option; (* can drop comments *)
   } 
 
   let debug_print_component (c: component) : string = 

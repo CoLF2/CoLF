@@ -11,6 +11,7 @@ let is_sublist (a : 'a list) (b : 'a list) : bool =
 let minus (a : 'a list) (b : 'a list) : 'a list = 
   List.filter (fun a -> not (List.mem a b)) a
 
+(* left-biased , filtering first list by second list*)
 let intersect (a : 'a list) (b : 'a list) : 'a list = 
   List.filter (fun a -> List.mem a b) a
 
@@ -42,12 +43,41 @@ let rec drop_n n lst =
   ;;
 
 
-let rec find_elem_by_key (lst : (string * 'a) list) (key : string) : 'a option =
+let rec find_elem_by_key (lst : ('k * 'a) list) (key : 'k) : 'a option =
   match lst with
   | [] -> None
   | (s, v) :: tl ->
       if s = key then Some v
       else find_elem_by_key tl key
+
+let lookup_elem_by_key (lst : (string * 'a) list) (key : string) : 'a =
+  match find_elem_by_key lst key with
+  | Some v -> v
+  | None -> failwith ("lookup_elem_by_key: key not found: " ^ key ^ " in " ^ String.concat ", " (List.map fst lst))
+
+let lookup_elem_by_key_generic (lst : ('k * 'a) list) (key : 'k) : 'a =
+  match find_elem_by_key lst key with
+  | Some v -> v
+  | None -> failwith ("lookup_elem_by_key: key not found: ")
+
+let lookup_index_of_elem_by_key (lst : (string * 'a) list) (key : string) : int =
+  match List.find_index (fun (k, _) -> k = key) lst with
+  | Some idx -> idx
+  | None -> failwith ("lookup_index_of_elem_by_key: key not found: " ^ key)
+
+let elem_exists_by_key (lst : (string * 'a) list) (key : string) : bool =
+  match find_elem_by_key lst key with
+  | Some _ -> true
+  | None -> false
+
+let update_elem_by_key (lst : (string * 'a) list) (key : string) (value : 'a) : (string * 'a) list =
+  if elem_exists_by_key lst key then
+    List.map (fun (k, v) -> if k = key then (k, value) else (k, v)) lst
+  else
+    (key, value) :: lst
+
+
+  
 
 (* Every Element of a list are equal *)
 let all_equal lsts =
@@ -91,3 +121,104 @@ let python_range start_idx end_idx =
   aux start_idx []
 ;;
    
+
+let repeat i n =
+  let rec aux i acc =
+    if i <= 0 then acc
+    else aux (i - 1) (n :: acc)
+  in
+  aux i []
+
+
+let range (begin_int : int) (end_int : int) : int list =
+  (* [begin_int, end_int) *)
+  List.init (end_int - begin_int) (fun i -> begin_int + i)
+
+let filter_map_i (f : int -> 'a -> 'b option) (lst : 'a list) : 'b list =
+  let rec aux i acc lst =
+    match lst with
+    | [] -> List.rev acc
+    | x :: xs ->
+        match f i x with
+        | Some v -> aux (i + 1) (v :: acc) xs
+        | None -> aux (i + 1) acc xs
+  in
+  aux 0 [] lst
+
+
+let insert_at_index (l : 'a list) (idx : int) (new_input : 'a list) : 'a list =
+  assert (idx >= 0 && idx <= List.length l);
+  take idx l @ new_input @ drop idx l
+
+let replace_idx (inputs : 'a list) (idx : int) (new_input : 'a list) : 'a list =
+  assert (idx >= 0 && idx < List.length inputs);
+  take idx inputs @ new_input @ drop (idx + 1) inputs
+  (* List.concat (List.mapi (fun i x ->
+    if i = idx then new_input else [x]
+  ) inputs) *)
+
+let insert_after_index (l : 'a list) (idx : int) (new_input : 'a) : 'a list =
+  assert (idx >= 0 && idx < List.length l);
+  insert_at_index l (idx + 1) [new_input]
+    
+
+let insert_after_key (lst : (string * 'a) list) (key_idx: string) ((key ,value) : string * 'a) : (string * 'a) list =
+  assert (not (elem_exists_by_key lst key));
+  match List.find_index (fun (k, _) -> k = key_idx) lst with
+  | None -> failwith ("insert_after_key: key not found: " ^ key_idx)
+  | Some idx ->
+    replace_idx lst idx (List.nth lst idx :: [(key, value)])
+
+
+let list_identical (l1 : 'a list) (l2 : 'a list) : bool = 
+  List.for_all2 (fun x y -> x = y) l1 l2
+
+ 
+let find_opt_i p x = 
+  let rec aux i l =
+    match l with
+    | [] -> None
+    | y :: ys -> if p y then Some (i, y) else aux (i + 1) ys
+  in
+  aux 0 x
+
+
+let rec zip lst1 lst2 =
+  match lst1, lst2 with
+  | [], [] -> []
+  | x::xs, y::ys -> (x, y) :: zip xs ys
+  | _, _ -> invalid_arg "List.zip: lists have different lengths"
+  
+  
+
+let show_list (lst : 'a list) (f : 'a -> string) : string =
+  "[" ^ String.concat "; " (List.map f lst) ^ "]"
+
+let forall_i (f : int -> 'a -> bool) (lst : 'a list) : bool =
+  List.for_all2 f (List.init (List.length lst) Fun.id) lst
+  
+
+
+
+
+
+
+let find_index_i (p : int -> 'a -> bool) (lst : 'a list) : int option =
+  let rec aux i lst =
+    match lst with
+    | [] -> None
+    | x :: xs ->
+        if p i x then Some i
+        else aux (i + 1) xs
+  in
+  aux 0 lst
+
+let lookup_index_of (elem : 'a) (lst : 'a list) : int =
+  match List.find_index (fun x -> x = elem) lst with
+  | Some idx -> idx
+  | None -> failwith ("lookup_index: element not found: ")
+
+let fold_left_non_empty f lst =
+  match lst with
+  | [] -> failwith "fold_left_non_empty: empty list"
+  | x :: xs -> List.fold_left f x xs

@@ -5,6 +5,7 @@ module N = CoLFAbt.CoLFNode
 module Ctx = TypeCheckingCtx.TypeCheckingCtx
 module Sig = CoLFSignature.CoLFSignature
 module Errors = Errors.Errors
+module Ext = AbtLib.Extent
 
 module type TYPE_CHECKING = sig
   val type_check_signature : Sig.t -> unit
@@ -109,8 +110,11 @@ let type_check_signature (signature : Sig.t) : unit =
     | [] -> ()
     | Sig.TypeDecl(name, tp):: tl -> 
       let _ = (synth_top ctx tp)  in 
-      let new_ctx = Ctx.add_global_type_decl ctx name tp in
-      aux new_ctx tl
+      if Ctx.name_exists ctx (Ext.get_str_content name) 
+      then Errors.raise_with_explicit_extent (Some (Ext.get_str_extent name))  ("Type " ^ (Ext.get_str_content name) ^ " already declared.") 
+      else 
+        let new_ctx = Ctx.add_global_type_decl ctx (Ext.get_str_content name) tp in
+        aux new_ctx tl
     | Sig.ModeDecl(_)::tl -> 
       aux ctx tl
     | Sig.SeparatorDecl::tl -> 
@@ -129,13 +133,14 @@ let type_check_signature (signature : Sig.t) : unit =
               match dec with 
               | (Sig.ConstantDef(name, tp, _)) -> (
                 let _ = synth_top acc tp in ();
-                try Ctx.add_global_type_decl acc name tp  with Failure s -> Errors.raise_error tp s
+                try Ctx.add_global_type_decl acc (Ext.get_str_content name) tp 
+                with Failure s -> Errors.raise_with_explicit_extent (Some (Ext.get_str_extent name)) s
                 )
               | _ -> failwith "expecting constant dec") ctx sofar in
             let to_add = List.map (fun dec -> match dec with 
               | (Sig.ConstantDef(name, tp, body)) -> 
                 let _ = check_top ctx' body tp in
-                (name, body)
+                (Ext.get_str_content name, body)
               | _ -> failwith "expecting constant dec")  sofar in
             let final_ctx = Ctx.add_global_rec_defs ctx' to_add in
             aux final_ctx remaining
@@ -147,3 +152,8 @@ let type_check_signature (signature : Sig.t) : unit =
   aux (Ctx.empty_ctx()) signature
 
 end
+
+
+let static_check_signature_top_level (signature : Sig.t) : unit = 
+  TypeChecking.type_check_signature signature;
+  ModeChecking.mode_check_signature signature

@@ -1,0 +1,92 @@
+type nat = +{'zero : 1, 'succ : nat}
+
+
+proc add (d : nat) (x0 : nat) (x1 : nat)  = 
+  read x0 {
+    | 'zero(x0) => 
+      add_Lzero d x0 x1
+    | 'succ(x0) => 
+      add_Lsucc d x0 x1
+  }
+
+proc add_Lsucc (d : nat) (x0 : nat) (x1 : nat)  = 
+  cut y : nat
+    add y x0 x1
+  write d 'succ y
+
+proc add_Lzero (d : nat) (x0 : 1) (x1 : nat)  = 
+  read x0 {
+    | () => 
+      add_Lzero_Lunit d x1
+  }
+
+proc add_Lzero_Lunit (d : nat) (x0 : nat)  = 
+  id d x0
+
+proc two (d : nat)  = 
+  cut y : nat
+    two_Rsucc y
+  write d 'succ y
+
+proc two_Rsucc (d : nat)  = 
+  cut y : nat
+    two_Rsucc_Rsucc y
+  write d 'succ y
+
+proc two_Rsucc_Rsucc (d : nat)  = 
+  cut y : 1
+    two_Rsucc_Rsucc_Rzero y
+  write d 'zero y
+
+proc two_Rsucc_Rsucc_Rzero (d : 1)  = 
+  write d ()
+
+proc add' (d : nat) (x0 : nat) (x1 : nat)  = 
+  add d x1 x0
+
+proc main (d : nat)  = 
+  cut y : nat
+    main_P0 y
+  main_cut d y
+
+proc main_cut (d : nat) (x0 : nat)  = 
+  cut y : nat
+    main_cut_P1 y
+  add' d x0 y
+
+proc main_cut_P1 (d : nat)  = 
+  cut y : nat
+    main_cut_P1_Rsucc y
+  write d 'succ y
+
+proc main_cut_P1_Rsucc (d : nat)  = 
+  cut y : nat
+    main_cut_P1_Rsucc_Rsucc y
+  write d 'succ y
+
+proc main_cut_P1_Rsucc_Rsucc (d : nat)  = 
+  cut y : 1
+    main_cut_P1_Rsucc_Rsucc_Rzero y
+  write d 'zero y
+
+proc main_cut_P1_Rsucc_Rsucc_Rzero (d : 1)  = 
+  write d ()
+
+proc main_P0 (d : nat)  = 
+  cut y : nat
+    main_P0_Rsucc y
+  write d 'succ y
+
+proc main_P0_Rsucc (d : nat)  = 
+  cut y : nat
+    main_P0_Rsucc_Rsucc y
+  write d 'succ y
+
+proc main_P0_Rsucc_Rsucc (d : nat)  = 
+  cut y : 1
+    main_P0_Rsucc_Rsucc_Rzero y
+  write d 'zero y
+
+proc main_P0_Rsucc_Rsucc_Rzero (d : 1)  = 
+  write d ()
+

@@ -1,0 +1,21 @@
+nat : cotype.
+zero : 1 -> nat.
+succ : nat -> nat.
+
+nat_dup : nat >=> (nat * nat).
+nat_dealloc : nat >=> 1.
+half : nat >=> nat.
+two :  >=> nat.
+four :  >=> nat.
+main :  >=> nat.
+
+nat_dup_def : Nat >= nat_dup >= (Nat , Nat).
+nat_dealloc_def : Nat >= nat_dealloc >= ().
+half/z : (zero ()) >= half >= (zero ()).
+half/s2 : (succ (zero ())) >= half >= (zero ()).
+half/s : (succ (succ X)) >= half >= X.
+two_def :  >= two >= (succ (succ (zero ()))).
+four_def :  >= four >= (succ (succ (succ (succ (zero ()))))).
+main/def :  >= four >= Four ->
+   Four >= half >= C ->
+    >= main >= C.

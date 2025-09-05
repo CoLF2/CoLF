@@ -1,0 +1,29 @@
+nat : cotype.
+a : nat.
+b : nat -> nat.
+
+
+
+stream : cotype.
+cons : nat -> stream -> stream.
+
+
+stream_of : nat -> stream = [A] cons A (stream_of A).
+up : nat -> stream = [A] cons A (up (b A)).
+stream_of_a : stream = cons a (stream_of_a).
+
+stream_merge_alternating : stream -> stream -> stream -> cotype.
+%mode stream_merge_alternating + + -.
+stream_merge_alternating/def : 
+    stream_merge_alternating Y W Z ->
+    stream_merge_alternating (cons A W) Y (cons A Z).
+
+main : stream -> cotype.
+%mode main -.
+main/def : main (up a).
+
+
+
+
+
+

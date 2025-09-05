@@ -1,0 +1,44 @@
+type nat = +{'zero : 1, 'succ : nat}
+
+
+proc half_L0succ_1_L0succ (d : nat) (x0 : nat)  = 
+  id d x0
+
+proc half_L0succ_L0zero (d : nat) (x0 : 1)  = 
+  read x0 {
+    | () => 
+      cut y : 1
+        write y ()
+      write d 'zero y
+  }
+
+proc main (d : nat)  = 
+  cut y : nat
+    cut y_1 : nat
+      cut y : nat
+        cut y_1 : nat
+          cut y : nat
+            cut y_1 : 1
+              write y_1 ()
+            write y 'zero y_1
+          write y_1 'succ y
+        write y 'succ y_1
+      write y_1 'succ y
+    write y 'succ y_1
+  read y {
+    | 'zero(x0) => 
+      read x0 {
+        | () => 
+          cut y : 1
+            write y ()
+          write d 'zero y
+      }
+    | 'succ(x0) => 
+      read x0 {
+        | 'zero(x0) => 
+          half_L0succ_L0zero d x0
+        | 'succ(x0) => 
+          half_L0succ_1_L0succ d x0
+      }
+  }
+

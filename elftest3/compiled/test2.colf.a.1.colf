@@ -1,0 +1,26 @@
+nat : cotype.
+nat_dup : nat -> nat -> nat -> cotype.
+nat_dealloc : nat -> cotype.
+nat_dup_def : {Nat : nat} (nat_dup Nat Nat Nat).
+nat_dealloc_def : {Nat : nat} (nat_dealloc Nat).
+%mode (nat_dup + - -).
+%mode (nat_dealloc +).
+zero : nat.
+succ : nat -> nat.
+bool : cotype.
+bool_dup : bool -> bool -> bool -> cotype.
+bool_dealloc : bool -> cotype.
+bool_dup_def : {Bool : bool} (bool_dup Bool Bool Bool).
+bool_dealloc_def : {Bool : bool} (bool_dealloc Bool).
+%mode (bool_dup + - -).
+%mode (bool_dealloc +).
+true : bool.
+false : bool.
+iszero : nat -> bool -> cotype.
+%mode (iszero + -).
+iszero/z : (iszero zero true).
+iszero/sf : {X : nat} (iszero (succ X) false) -> (iszero (succ X) false).
+iszero/st : {X : nat} (iszero (succ X) true) -> (iszero (succ X) false).
+main : bool -> cotype.
+%mode (main -).
+main/def : {C : bool} (iszero zero C) -> (main C).

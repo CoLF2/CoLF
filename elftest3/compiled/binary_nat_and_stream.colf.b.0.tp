@@ -1,0 +1,37 @@
+bin : cotype.
+stream : cotype.
+e : 1 -> bin.
+b0 : bin -> bin.
+b1 : bin -> bin.
+scons : (bin * stream) -> stream.
+
+get_b0 :  >=> bin.
+bsucc : bin >=> bin.
+bpred : bin >=> bin.
+bin_dup : bin >=> (bin * bin).
+up : bin >=> stream.
+main :  >=> stream.
+
+get_b0/e :  >= get_b0 >= (e ()).
+bsucc/e : (e ()) >= bsucc >= (b1 (e ())).
+bsucc/b0 : (b0 A) >= bsucc >= (b1 A).
+bsucc/b1 : A >= bsucc >= B ->
+   (b1 A) >= bsucc >= (b0 B).
+bpred/e : (e ()) >= bpred >= (e ()).
+bpred/b0 : A >= bpred >= B ->
+   (b0 A) >= bpred >= (b1 B).
+bpred/b1e : (b1 (e ())) >= bpred >= (e ()).
+bpred/b1b0 : (b1 (b0 A)) >= bpred >= (b0 (b0 A)).
+bpred/b1b1 : (b1 (b1 A)) >= bpred >= (b0 (b1 A)).
+bin_dup/e : (e ()) >= bin_dup >= ((e ()) , (e ())).
+bin_dup/b0 : A >= bin_dup >= (B , C) ->
+   (b0 A) >= bin_dup >= ((b0 B) , (b0 C)).
+bin_dup/b1 : A >= bin_dup >= (B , C) ->
+   (b1 A) >= bin_dup >= ((b1 B) , (b1 C)).
+up/def : X >= bin_dup >= (X1 , X2) ->
+   X1 >= bsucc >= Y ->
+   Y >= up >= S ->
+   X >= up >= (scons (X2 , S)).
+main/def :  >= get_b0 >= X ->
+   X >= up >= S ->
+    >= main >= S.

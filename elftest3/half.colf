@@ -1,0 +1,36 @@
+nat : cotype.
+z : nat.
+s : nat -> nat.
+
+
+
+half : nat -> nat -> cotype.
+%mode half +A -B.
+half/def : half A B -> half (s (s A)) (s B).
+half/single : half (s z) z.
+half/0 : half z z.
+
+
+stream : cotype.
+cons : nat -> stream -> stream.
+
+up : nat -> stream = [A] cons A (up (s A)).
+
+half_stream : stream -> stream -> cotype.
+%mode half_stream +A -B.
+half_stream/def : half_stream A B -> 
+    half X Y ->
+    half_stream (cons X A) (cons Y B).
+
+main : stream -> cotype.
+%mode main -.
+main/def : half_stream (up z) H -> main H.
+
+
+
+
+
+
+
+
+

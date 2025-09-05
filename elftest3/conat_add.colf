@@ -1,0 +1,16 @@
+
+conat: cotype.
+cozero: conat.
+cosucc: conat -> conat.
+
+add: conat -> conat -> conat -> cotype.
+%mode add +A +B -C.
+add/cozero : {A : conat} add cozero A A.
+add/cosucc : {A : conat} {B : conat} {C : conat}
+    add A B C -> add (cosucc A) B (cosucc C).
+
+
+main: conat -> cotype.
+%mode main -C.
+main/cozero : {C : conat} 
+    add (cosucc cozero) cozero C -> main C.

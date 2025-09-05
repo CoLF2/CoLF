@@ -13,3 +13,6 @@ let show_parse_steps () = c_debug "show-parse-steps"
 let show_type_checking_steps () = c_debug "show-type-checking-steps"
 let substitution_debug () = c_debug "substitution-debug"
 let use_lazy_substitution () = c_debug "use-lazy-substitution"
+let tc_only () = c_debug "tc-only"
+
+let verbose () = c_debug "verbose"

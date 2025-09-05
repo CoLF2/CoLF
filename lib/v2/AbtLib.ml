@@ -14,6 +14,7 @@ module type ABT = sig
   type t_view = FreeVar of string | N of node_t * (string list * t) list
 
   val free_var: string -> t
+  val n : node_t * (string list * t) list -> t
   val unbind_abt: t -> string * t
   val unbind_abt_list: t -> int -> string list * t
   val abstract_over: t -> string -> t
@@ -21,6 +22,8 @@ module type ABT = sig
   val abstract_over_no_name: t -> t
   val view: t -> t_view
   val fold: t_view -> t
+  val fold_with_extent: t_view -> t_extent -> t
+  val fold_with_extent_opt: t_view -> t_extent option -> t
   (* val fold_direct_unsafe : ?check_arg_ctx:bool -> t_view -> t *)
   val subst: t -> string -> t -> t
 
@@ -37,17 +40,88 @@ module type ABT = sig
   *)
   val annotate_with_extent : t -> t_extent -> t
   val get_extent : t -> t_extent option
+  val get_extent_some : t -> t_extent 
   val operate_on_view : t -> (t_view -> t_view) -> t
 
   val eq_abt : t -> t -> bool
 
   
 end
+module type EXTENT = sig
+  type t = string * (int * int) * (int * int)
+  val combine_extent : t -> t -> t
+  val combine_extent_list : t list -> t
+  val show_extent : t -> string
+  val show_extent_1_based : t -> string
+
+  type t_str
+  val str_with_extent : string -> t -> t_str
+  val get_str_content : t_str -> string
+  val get_str_extent : t_str -> t
+  val join_t_str : t_str -> t_str -> t_str
+  val join_t_str_list : t_str list -> t_str
+
+end
+
+module Extent : EXTENT = struct
+  type t = string * (int * int) * (int * int)
+  type t_extent = t
+
+
+  let combine_extent (s1 : t_extent) (s2 : t_extent) : t_extent = 
+    let (file1, (row1, col1), (_row1', _col1')) = s1 in
+    let (_file2, (_row2, _col2), (row2', col2')) = s2 in
+    (file1, (row1, col1), (row2', col2'))
+
+  let combine_extent_list (s : t_extent list) : t_extent = 
+    match s with
+    | [] -> failwith "combine_extent_list: empty list"
+    | [x] -> x
+    | x :: xs -> List.fold_left combine_extent x xs
+
+  
+  let show_extent (s : t_extent) : string = 
+    let (file, (row1, col1), (row2, col2)) = s in
+    if row1 = row2
+      then Printf.sprintf "%s:%d:%d-%d" file (row1) (col1) (col2)
+      else Printf.sprintf "%s:%d:%d - %d:%d" file row1 col1 row2 col2
+
+  let show_extent_1_based (s : t_extent) : string = 
+    let (file, (row1, col1), (row2, col2)) = s in
+    if row1 = row2
+      then
+    Printf.sprintf "%s:%d:%d-%d" file (row1+1) (col1+1) (col2+1)
+      else
+    Printf.sprintf "%s:%d:%d - %d:%d" file (row1+1) (col1+1) (row2+1) (col2+1)
+
+  type t_str = string * t_extent
+  let str_with_extent (s : string) (e : t_extent) : t_str = (s, e)
+  let get_str_content (s : t_str) : string = fst s
+  let get_str_extent (s : t_str) : t_extent = snd s
+
+  let join_t_str (s1 : t_str) (s2 : t_str) = 
+    let (s1_str, s1_extent) = s1 in
+    let (s2_str, s2_extent) = s2 in
+    let new_extent = combine_extent s1_extent s2_extent in
+    (s1_str ^ s2_str, new_extent)
+
+  let join_t_str_list (s : t_str list) : t_str =
+    match s with
+    | [] -> failwith "join_t_str_list: empty list"
+    | [x] -> x
+    | x :: xs -> List.fold_left join_t_str x xs
+
+  
+end
+
+module Flags = struct
+  let use_lazy_substitution () = false
+end
 
 
 module Abt (NodeClass: NODE_CLASS) : ABT
   with type node_t = NodeClass.t
-  and type t_extent = Extent.Extent.t
+  and type t_extent = Extent.t
  = struct 
 
   type ctx = string list (* Bnd 1 means the first element in tis list *)
@@ -420,13 +494,15 @@ module Abt (NodeClass: NODE_CLASS) : ABT
       if List.length arity_l = List.length args && (List.for_all2 (fun (bnds, _) arity -> List.length bnds = arity) args arity_l)
         then fold_no_arity_check view
       else 
-        (print_endline ("fold: arity mismatch for " ^ NodeClass.show node_type);
+        (print_endline ("fold: arity mismatch for " ^ NodeClass.show node_type ^ " got " ^ show_raw(fold_no_arity_check view));
           failwith ("fold: arity mismatch for " ^ NodeClass.show node_type)
         )
   ) in 
   (* let _ = print_endline ("fold result: " ^ show_raw result) in *)
   result
 
+
+  let n ((node_type, args): node_t * (string list * t) list) : t = fold(N(node_type, args))
 
    (* let rec switch_bnd_var( int_ctx : int list)  (abt : base_t) : base_t =
     match abt with
@@ -555,14 +631,27 @@ module Abt (NodeClass: NODE_CLASS) : ABT
     | AnnotatedWithExtent(_, inner_tm) -> (ctx, AnnotatedWithExtent(extent, inner_tm))
     | _ -> (ctx, AnnotatedWithExtent(extent, tm))
 
+  let fold_with_extent (tv : t_view) (extent: t_extent) : t = 
+    annotate_with_extent (fold tv) extent
+
+  let fold_with_extent_opt (tv : t_view) (extent: t_extent option) : t =
+    match extent with
+    | Some extent -> fold_with_extent tv extent
+    | None -> fold tv
+
   let rec get_extent ((ctx, tm): t) : t_extent option =
     match tm with
     | AnnotatedWithExtent(extent, _) -> Some extent
     | Subst(base, _) -> get_extent (ctx, subst_head_reduce base)
     | _ -> (
-      print_endline ("get_extent: no extent found in " ^ show_raw (ctx, tm));
+      (* print_endline ("get_extent: no extent found in " ^ show_raw (ctx, tm)); *)
       None
       )
+
+  let get_extent_some ((ctx, tm): t) : t_extent =
+    match get_extent (ctx, tm) with
+    | Some extent -> extent
+    | None -> failwith ("get_extent_some: no extent found in " ^ show_raw (ctx, tm))
 
   let operate_on_view (tm: t) (f: t_view -> t_view) : t =
     match get_extent tm with

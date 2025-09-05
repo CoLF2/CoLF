@@ -1,0 +1,35 @@
+type nat = +{'zero : 1, 'succ : nat}
+
+
+proc add (d : nat) (x0 : nat) (x1 : nat)  = 
+  read x0 {
+    | 'zero(x0) => 
+      read x0 {
+        | () => 
+          id d x1
+      }
+    | 'succ(x0) => 
+      cut y : nat
+        add y x0 x1
+      write d 'succ y
+  }
+
+proc main (d : nat)  = 
+  cut y : nat
+    cut y_1 : nat
+      cut y : nat
+        cut y_1 : 1
+          write y_1 ()
+        write y 'zero y_1
+      write y_1 'succ y
+    write y 'succ y_1
+  cut y_1 : nat
+    cut y : nat
+      cut y_1 : nat
+        cut y : 1
+          write y ()
+        write y_1 'zero y
+      write y 'succ y_1
+    write y_1 'succ y
+  add d y_1 y
+

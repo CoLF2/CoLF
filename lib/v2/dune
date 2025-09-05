@@ -1,5 +1,7 @@
 (library
  (name lftest08_v2)
  (preprocess (pps ppx_deriving.show ppx_deriving.ord ppx_deriving.eq))
- (libraries core unix yojson)
+ (libraries core unix yojson eio_main)
  )
+
+(include_subdirs unqualified)

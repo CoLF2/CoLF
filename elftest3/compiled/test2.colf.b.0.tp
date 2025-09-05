@@ -1,0 +1,25 @@
+nat : cotype.
+bool : cotype.
+zero : 1 -> nat.
+succ : nat -> nat.
+true : 1 -> bool.
+false : 1 -> bool.
+
+nat_dup : nat >=> (nat * nat).
+nat_dealloc : nat >=> 1.
+bool_dup : bool >=> (bool * bool).
+bool_dealloc : bool >=> 1.
+iszero : nat >=> bool.
+main :  >=> bool.
+
+nat_dup_def : Nat >= nat_dup >= (Nat , Nat).
+nat_dealloc_def : Nat >= nat_dealloc >= ().
+bool_dup_def : Bool >= bool_dup >= (Bool , Bool).
+bool_dealloc_def : Bool >= bool_dealloc >= ().
+iszero/z : (zero ()) >= iszero >= (true ()).
+iszero/sf : (succ X) >= iszero >= (false ()) ->
+   (succ X) >= iszero >= (false ()).
+iszero/st : (succ X) >= iszero >= (true ()) ->
+   (succ X) >= iszero >= (false ()).
+main/def : (zero ()) >= iszero >= C ->
+    >= main >= C.

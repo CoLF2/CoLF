@@ -1,0 +1,503 @@
+tn: cotype. %% ternary number
+tn_e : tn.
+tn_m1 : tn -> tn.
+tn_z0 : tn -> tn.
+tn_p1 : tn -> tn.
+
+tn_zero : tn -> cotype.
+%mode tn_zero -N.
+tn_zero/def : tn_zero (tn_e).
+
+tn_plusone : tn -> cotype.
+%mode tn_plusone -N.
+tn_plusone/def : tn_plusone (tn_p1 tn_e).
+
+tn_minusone : tn -> cotype.
+%mode tn_minusone -N.
+tn_minusone/def : tn_minusone (tn_m1 tn_e).
+
+sign : cotype.
+sn_positive : sign.
+sn_negative : sign.
+sn_zero : sign.
+
+tn_signRec : tn -> sign -> sign -> cotype.
+%mode tn_signRec +N +S -S.
+tn_signRec/e : {S: sign} tn_signRec tn_e S S.
+tn_signRec/m1 : {X : tn} {S : sign} {S' : sign}
+    tn_signRec X sn_negative S' -> 
+    tn_signRec (tn_m1 X) S S'.
+tn_signRec/z0 : {X : tn} {S : sign} {S' : sign}
+    tn_signRec X S S' -> 
+    tn_signRec (tn_z0 X) S S'.
+tn_signRec/p1 : {X : tn} {S : sign} {S' : sign}
+    tn_signRec X sn_positive S' -> 
+    tn_signRec (tn_p1 X) S S'.
+
+tn_sign : tn -> sign -> cotype.
+%mode tn_sign +N -S.
+tn_sign/def : {X : tn} {S : sign} tn_signRec X sn_zero S -> tn_sign X S.
+
+
+tn_inc : tn -> tn -> cotype.
+%mode tn_inc +N -N.
+tn_inc/e : tn_inc (tn_e) (tn_p1 tn_e).
+tn_inc/m1 : {X : tn} tn_inc (tn_m1 X) (tn_z0 X).
+tn_inc/z0 : {X : tn} tn_inc (tn_z0 X) (tn_p1 X).
+tn_inc/p1 : {X : tn} {Y : tn}
+    tn_inc X Y -> 
+    tn_inc (tn_p1 X) (tn_m1 Y).
+
+tn_dec : tn -> tn -> cotype.
+%mode tn_dec +N -N.
+tn_dec/e : tn_dec tn_e (tn_m1 tn_e).
+tn_dec/m1 : {X : tn} {Y : tn}
+    tn_dec X Y -> 
+    tn_dec (tn_m1 X) (tn_p1 Y).
+tn_dec/z0 : {X : tn} tn_dec (tn_z0 X) (tn_m1 X).
+tn_dec/p1 : {X : tn} tn_dec (tn_p1 X) (tn_z0 X).
+
+tn_neg : tn -> tn -> cotype.
+%mode tn_neg +N -N.
+tn_neg/e : tn_neg tn_e tn_e.
+tn_neg/m1 : {X : tn} {Y : tn}
+    tn_neg X Y -> 
+    tn_neg (tn_m1 X) (tn_p1 Y).
+tn_neg/z0 : {X : tn} {Y : tn}
+    tn_neg X Y -> 
+    tn_neg (tn_z0 X) (tn_z0 Y).
+tn_neg/p1 : {X : tn} {Y : tn}
+    tn_neg X Y -> 
+    tn_neg (tn_p1 X) (tn_m1 Y).
+
+tn_plus : tn -> tn -> tn -> cotype.
+%mode tn_plus +N +N -N.
+tn_plus/e/_ : {Y : tn} tn_plus tn_e Y Y.
+tn_plus/_/e: {X : tn} tn_plus X tn_e X.
+%% (3x - 1) + (3y - 1) = 3(x+y-1) + 1 .
+tn_plus/m1/m1 : {X : tn} {Y : tn} {Z : tn} {Z' : tn}
+    tn_plus X Y Z ->
+    tn_dec Z Z' -> 
+    tn_plus (tn_m1 X) (tn_m1 Y) (tn_p1 Z').
+%% (3x + 1) + (3y + 1) = 3(x+y+1) - 1
+tn_plus/p1/p1 : {X : tn} {Y : tn} {Z : tn} {Z' : tn}
+    tn_plus X Y Z ->
+    tn_inc Z Z' -> 
+    tn_plus (tn_p1 X) (tn_p1 Y) (tn_m1 Z').
+tn_plus/m1/z0 : {X : tn} {Y : tn} {Z : tn}
+    tn_plus X Y Z ->
+    tn_plus (tn_m1 X) (tn_z0 Y) (tn_m1 Z).
+tn_plus/m1/p1 : {X : tn} {Y : tn} {Z : tn}
+    tn_plus X Y Z ->
+    tn_plus (tn_m1 X) (tn_p1 Y) (tn_z0 Z).
+tn_plus/z0/m1 : {X : tn} {Y : tn} {Z : tn}
+    tn_plus X Y Z ->
+    tn_plus (tn_z0 X) (tn_m1 Y) (tn_m1 Z).
+tn_plus/z0/z0 : {X : tn} {Y : tn} {Z : tn}
+    tn_plus X Y Z ->
+    tn_plus (tn_z0 X) (tn_z0 Y) (tn_z0 Z).
+tn_plus/z0/p1 : {X : tn} {Y : tn} {Z : tn}
+    tn_plus X Y Z ->
+    tn_plus (tn_z0 X) (tn_p1 Y) (tn_p1 Z).
+tn_plus/p1/m1 : {X : tn} {Y : tn} {Z : tn}
+    tn_plus X Y Z ->
+    tn_plus (tn_p1 X) (tn_m1 Y) (tn_z0 Z).
+tn_plus/p1/z0 : {X : tn} {Y : tn} {Z : tn}
+    tn_plus X Y Z ->
+    tn_plus (tn_p1 X) (tn_z0 Y) (tn_p1 Z).
+
+tn_minus : tn -> tn -> tn -> cotype.
+%mode tn_minus +N +N -N.
+tn_minus/def : {X : tn} {Y : tn} {Z : tn} {Y' : tn}
+    tn_neg Y Y' ->
+    tn_plus X Y' Z ->
+    tn_minus X Y Z.
+
+%% x < y if x - y < 0
+tn_less_than : tn -> tn -> cotype.
+%mode tn_less_than +N +N.
+tn_less_than/def : {X : tn} {Y : tn} {Z : tn}
+    tn_minus X Y Z ->
+    tn_sign Z sn_negative -> 
+    tn_less_than X Y.
+
+%% x > y if x - y > 0
+tn_greater_than : tn -> tn -> cotype.
+%mode tn_greater_than +N +N.
+tn_greater_than/def : {X : tn} {Y : tn} {Z : tn}
+    tn_minus X Y Z ->
+    tn_sign Z sn_positive -> 
+    tn_greater_than X Y.
+
+%% x <= y 
+tn_less_than_or_eq : tn -> tn -> cotype.
+%mode tn_less_than_or_eq +N +N.
+tn_less_than_or_eq/eq : {X : tn} 
+    tn_less_than_or_eq X X.
+tn_less_than_or_eq/less_than : {X : tn} {Y : tn} 
+    tn_less_than X Y ->
+    tn_less_than_or_eq X Y.
+
+%% x >= y 
+tn_greater_than_or_eq : tn -> tn -> cotype.
+%mode tn_greater_than_or_eq +N +N.
+tn_greater_than_or_eq/eq : {X : tn} 
+    tn_greater_than_or_eq X X.
+tn_greater_than_or_eq/greater_than : {X : tn} {Y : tn}
+    tn_greater_than X Y ->
+    tn_greater_than_or_eq X Y.
+
+tn_times : tn -> tn -> tn -> cotype.
+%mode tn_times +N +N -N.
+tn_times/e/_ : {Y : tn} tn_times tn_e Y tn_e.
+tn_times/_/e : {X : tn} tn_times X tn_e tn_e.
+%% (3x-1)*(3y-1) = 3(3(xy)-(x+y))+1
+tn_times/m1/m1: {X : tn} {Y : tn} {Z : tn} {W : tn} {U : tn}
+    tn_times X Y Z ->
+    tn_plus X Y W ->
+    tn_minus (tn_z0 Z) W U -> 
+    tn_times (tn_m1 X) (tn_m1 Y) (tn_p1 U).
+%% (3x-1)*(3y+0) = 3(3(xy)-y)
+tn_times/m1/z0: {X : tn} {Y : tn} {Z : tn} {W : tn}
+    tn_times X Y Z ->
+    tn_minus (tn_z0 Z) Y W -> 
+    tn_times (tn_m1 X) (tn_z0 Y) (tn_z0 W).
+%% (3x-1)*(3y+1) = 3(3(xy)+(x-y))-1
+tn_times/m1/p1: {X : tn} {Y : tn} {Z : tn} {W : tn} {U : tn}
+    tn_times X Y Z ->
+    tn_minus X Y W ->
+    tn_plus (tn_z0 Z) W U -> 
+    tn_times (tn_m1 X) (tn_p1 Y) (tn_m1 U).
+%% (3x+0)*(3y-1) = 3(3(xy)-x)
+tn_times/z0/m1: {X : tn} {Y : tn} {Z : tn} {W : tn}
+    tn_times X Y Z ->
+    tn_minus (tn_z0 Z) X W -> 
+    tn_times (tn_z0 X) (tn_m1 Y) (tn_z0 W).
+%% (3x+0)*(3y+0) = 3(3xy)
+tn_times/z0/z0: {X : tn} {Y : tn} {Z : tn}
+    tn_times X Y Z ->
+    tn_times (tn_z0 X) (tn_z0 Y) (tn_z0 (tn_z0 Z)).
+%% (3x+0)*(3y+1) = 3(3(xy)+x)
+tn_times/z0/p1: {X : tn} {Y : tn} {Z : tn} {W : tn}
+    tn_times X Y Z ->
+    tn_plus (tn_z0 Z) X W -> 
+    tn_times (tn_z0 X) (tn_p1 Y) (tn_z0 W).
+%% (3x+1)*(3y-1) = 3(3(xy)-(x-y))-1
+tn_times/p1/m1: {X : tn} {Y : tn} {Z : tn} {W : tn} {U : tn}
+    tn_times X Y Z ->
+    tn_minus X Y W ->
+    tn_minus (tn_z0 Z) W U -> 
+    tn_times (tn_p1 X) (tn_m1 Y) (tn_m1 U).
+%% (3x+1)*(3y+0) = 3(3xy+y)
+tn_times/p1/z0: {X : tn} {Y : tn} {Z : tn} {W : tn}
+    tn_times X Y Z ->
+    tn_plus (tn_z0 Z) Y W -> 
+    tn_times (tn_p1 X) (tn_z0 Y) (tn_z0 W).
+%% (3x+1)*(3y+1) = 3(3(xy)+(x+y))+1
+tn_times/p1/p1: {X : tn} {Y : tn} {Z : tn} {W : tn} {U : tn}
+    tn_times X Y Z ->
+    tn_plus X Y W ->
+    tn_plus (tn_z0 Z) W U -> 
+    tn_times (tn_p1 X) (tn_p1 Y) (tn_p1 U).
+
+tn_one : tn -> cotype.
+%mode tn_one -N.
+tn_one/def : {N : tn} tn_plusone N -> tn_one N.
+tn_three : tn -> cotype.
+%mode tn_three -N.
+tn_three/def : {N : tn} tn_one N -> tn_three (tn_z0 N).
+tn_three' : tn -> cotype.
+%mode tn_three' -N.
+tn_three'/def : {N : tn} {M : tn} {Z : tn}
+    tn_one N ->
+    tn_three M ->
+    tn_times N M Z -> 
+    tn_three' Z.
+tn_nine : tn -> cotype.
+%mode tn_nine -N.
+tn_nine/def : {N : tn} tn_three N -> tn_nine (tn_z0 N).
+tn_nine' : tn -> cotype.
+%mode tn_nine' -N.
+tn_nine'/def : {N : tn} {Z : tn}
+    tn_three N ->
+    tn_times N N Z -> 
+    tn_nine' Z.
+tn_eight : tn -> cotype.
+%mode tn_eight -N.
+tn_eight/def : {N : tn} {M : tn} 
+    tn_nine N ->
+    tn_dec N M ->
+    tn_eight M.
+tn_two : tn -> cotype.
+%mode tn_two -N.
+tn_two/def : {N : tn} {M : tn} 
+    tn_one N ->
+    tn_inc N M ->
+    tn_two M.
+tn_four : tn -> cotype.
+%mode tn_four -N.
+tn_four/def : {N : tn} {M : tn} 
+    tn_two N ->
+    tn_times N N M ->
+    tn_four M.
+tn_five : tn -> cotype.
+%mode tn_five -N.
+tn_five/def : {N : tn} {M : tn} 
+    tn_four N ->
+    tn_inc N M ->
+    tn_five M.
+tn_eight' : tn -> cotype.
+%mode tn_eight' -N.
+tn_eight'/def : {X : tn} {N : tn} {M : tn} 
+    tn_two X ->
+    tn_four N ->
+    tn_times X N M ->
+    tn_eight' M.
+
+tn_seven : tn -> cotype.
+%mode tn_seven -N.
+tn_seven/def : {N : tn} {M : tn} 
+    tn_eight N ->
+    tn_dec N M ->
+    tn_seven M.
+tn_twenty : tn -> cotype.
+%mode tn_twenty -N.
+tn_twenty/def : {X : tn}{N : tn} {M : tn} 
+    tn_four X ->
+    tn_five N ->
+    tn_times X N M ->
+    tn_twenty M.
+tn_twenty' : tn -> cotype.
+%mode tn_twenty' -N.
+tn_twenty'/def : {X : tn}{N : tn} {M : tn} 
+    tn_five X ->
+    tn_four N ->
+    tn_times X N M ->
+    tn_twenty' M.
+tn_twentyone : tn -> cotype.
+%mode tn_twentyone -N.
+tn_twentyone/def : {X : tn}{N : tn} {M : tn} 
+    tn_three X ->
+    tn_seven N ->
+    tn_times X N M ->
+    tn_twentyone M.
+tn_twentyone' : tn -> cotype.
+%mode tn_twentyone' -N.
+tn_twentyone'/def : {X : tn}{N : tn} {M : tn} 
+    tn_seven X ->
+    tn_three N ->
+    tn_times X N M ->
+    tn_twentyone' M.
+tn_fiftysix : tn -> cotype.
+%mode tn_fiftysix -N.
+tn_fiftysix/def : {X : tn} {Y : tn} {Z : tn}
+    tn_seven X -> 
+    tn_eight Y ->
+    tn_times X Y Z ->
+    tn_fiftysix Z.
+tn_fiftysix' : tn -> cotype.
+%mode tn_fiftysix' -N.
+tn_fiftysix'/def : {X : tn} {Y : tn} {Z : tn}
+    tn_eight X -> 
+    tn_seven Y ->
+    tn_times X Y Z ->
+    tn_fiftysix' Z.
+tn_seventytwo : tn -> cotype.
+%mode tn_seventytwo -N.
+tn_seventytwo/def : {X : tn} {Y : tn} {Z : tn}
+    tn_nine X -> 
+    tn_eight Y ->
+    tn_times X Y Z ->
+    tn_seventytwo Z.
+tn_seventytwo' : tn -> cotype.
+%mode tn_seventytwo' -N.
+tn_seventytwo'/def : {X : tn} {Y : tn} {Z : tn}
+    tn_eight X -> 
+    tn_nine Y ->
+    tn_times X Y Z ->
+    tn_seventytwo' Z.
+tn_minusFortynine : tn -> cotype.
+%mode tn_minusFortynine -N.
+tn_minusFortynine/def : {X : tn} {Y : tn} {Z : tn}
+    tn_seven X -> 
+    tn_neg X Y ->
+    tn_times X Y Z ->
+    tn_minusFortynine Z.
+
+
+i : cotype.
+i/c : tn -> i -> i.
+
+i_one : i -> cotype.
+%mode i_one -N.
+i_one/def : {X : i} {Y : tn} 
+    i_one X ->
+    tn_one Y ->  
+    i_one (i/c Y X).
+
+i_zero : i -> cotype.
+%mode i_zero -N.
+i_zero/def : {X : i} {Y : tn} 
+    i_zero X ->
+    tn_zero Y ->  
+    i_zero (i/c Y X).
+
+i_minusone : i -> cotype.
+%mode i_minusone -N.
+i_minusone/def : {X : i} {Y : tn} 
+    i_minusone X ->
+    tn_minusone Y ->  
+    i_minusone (i/c Y X).
+
+i_oneThird : i -> cotype.
+%mode i_oneThird -N.
+i_oneThird/def : {X : i} {N : tn}  {M : tn}
+    i_oneThird X ->
+    tn_zero N ->  
+    tn_one M -> 
+    i_oneThird (i/c N (i/c M X)).
+
+i_oneThird' : i -> cotype.
+%mode i_oneThird' -N.
+i_oneThird'/def : {X : i} {N : tn}  {M : tn}
+    i_oneThird' X ->
+    tn_one N ->  
+    tn_minusone M -> 
+    i_oneThird' (i/c N (i/c M X)).
+
+i_div_by_tn : i -> tn -> i -> cotype.
+%mode i_div_by_tn +N +N -N.
+%% (0.5 * x) / y = 0.5 * (x / y)
+i_div_by_tn/zero :  {X : i} {Y : tn} {Z : i}
+    i_div_by_tn X Y Z ->
+    i_div_by_tn (i/c tn_e X) Y (i/c tn_e Z).
+%% (0.5 * y + 0.5 * x) / y = 0.5 + 0.5 * (x / y)
+i_div_by_tn/abs/1 :  {X : i} {Y : tn} {Z : i} 
+    i_div_by_tn X Y Z ->
+    i_div_by_tn (i/c Y X) Y (i/c (tn_p1 tn_e) Z).
+%% (0.5 * (-y) + 0.5 * x) / y = - 0.5 + 0.5 * (x / y)
+i_div_by_tn/abs/2 :  {X : i} {Y : tn} {Y' : tn} {Z : i} 
+    tn_neg Y Y' ->
+    i_div_by_tn X Y Z ->
+    i_div_by_tn (i/c Y' X) Y (i/c (tn_p1 tn_e) Z).
+%% (0.5 * a + 0.25 * b + 0.25 * c) / y = 
+%% let d = a * 2 + b in 
+%% | d < -y  => -0.5  + 0.5 * (0.5 * (d + 2 * y) + (0.5 * c)) / y
+%% | d > y  =>  0.5  + 0.5 * (0.5 * (d - 2 * y) + (0.5 * c)) / y
+%% | (-y < d < y) => 0.5 * ((0.5 * d + 0.5 * c) / y)
+i_div_by_tn/gen/1 : {A : tn} {B : tn} {C : i} {D : tn} 
+    {TWO : tn} {TWO_A : tn} {Y : tn} {nY : tn} {Z : i}
+    {D' : tn} {TWO_Y : tn}
+    tn_two TWO ->
+    tn_times TWO A TWO_A ->
+    tn_plus TWO_A B D ->
+    tn_neg Y nY ->
+    tn_less_than D nY ->
+    tn_times TWO Y TWO_Y ->
+    tn_plus D TWO_Y D' ->
+    i_div_by_tn (i/c D' C) Y Z ->
+    i_div_by_tn (i/c A (i/c B C)) Y (i/c (tn_m1 tn_e) Z).
+i_div_by_tn/gen/2 : {A : tn} {B : tn} {C : i} {D : tn}
+    {TWO : tn} {TWO_A : tn} {Y : tn} {Z : i}
+    {D' : tn} {TWO_Y : tn}
+    tn_two TWO ->
+    tn_times TWO A TWO_A ->
+    tn_plus TWO_A B D ->
+    tn_greater_than D Y ->
+    tn_times TWO Y TWO_Y ->
+    tn_minus D TWO_Y D' ->
+    i_div_by_tn (i/c D' C) Y Z ->
+    i_div_by_tn (i/c A (i/c B C)) Y (i/c (tn_p1 tn_e) Z).
+i_div_by_tn/gen/3 : {A : tn} {B : tn} {C : i} {D : tn} {Z : i}
+    {TWO : tn} {TWO_A : tn} {Y : tn} {nY : tn}
+    tn_two TWO ->
+    tn_times TWO A TWO_A ->
+    tn_plus TWO_A B D ->
+    tn_neg Y nY ->
+    tn_less_than nY D ->
+    tn_less_than D Y ->
+    i_div_by_tn (i/c D C) Y Z ->
+    i_div_by_tn (i/c A (i/c B C)) Y (i/c (tn_z0 tn_e) Z).
+
+%% second arg is carry
+i_div_by_pos_tn_rec : i -> tn -> tn -> i -> cotype.
+%mode i_div_by_pos_tn_rec +N +N +N -N.
+i_div_by_pos_tn_rec/gt : {X : i} {A: tn} {Y : tn} {Z : tn} {W : tn} {TWO : tn} {S : tn} {T : tn} {C : i} 
+    tn_two TWO ->
+    tn_times TWO Z W ->
+    tn_plus W A T -> 
+    tn_greater_than_or_eq T Y ->
+    tn_minus T Y S ->
+    i_div_by_pos_tn_rec X Y S C ->
+    i_div_by_pos_tn_rec (i/c A X) Y Z (i/c (tn_p1 tn_e) C).
+i_div_by_pos_tn_rec/lt : {X : i} {A: tn} {Y : tn} {NY : tn} {Z : tn} {W : tn} {TWO : tn} {T : tn} {S : tn} {C : i}
+    tn_two TWO ->
+    tn_times TWO Z W ->
+    tn_plus W A T -> 
+    tn_neg Y NY ->
+    tn_less_than_or_eq T NY ->
+    tn_plus T Y S ->
+    i_div_by_pos_tn_rec X Y S C ->
+    i_div_by_pos_tn_rec (i/c A X) Y Z (i/c (tn_m1 tn_e) C).
+i_div_by_pos_tn_rec/otherwise : {X : i} {A: tn} {Y : tn} {Z : tn} {W : tn} {TWO : tn} {T : tn} {C : i}
+    tn_two TWO ->
+    tn_times TWO Z W ->
+    tn_plus W A T -> 
+    i_div_by_pos_tn_rec X Y T C ->
+    i_div_by_pos_tn_rec (i/c A X) Y Z (i/c (tn_z0 tn_e) C).
+
+
+i_div_by_pos_tn : i -> tn -> i -> cotype.
+%mode i_div_by_pos_tn +N +N -N.
+i_div_by_pos_tn/def : {X : i} {Y : tn} {Z : i} 
+    i_div_by_pos_tn_rec X Y tn_e Z ->
+    i_div_by_pos_tn X Y Z.
+
+i_add2 : i -> i -> i -> cotype.
+%mode i_add2 +N +N -N.
+i_add2/def : {X : i} {Y : i} {Z : i} {N : tn} {M : tn} {K : tn}
+    tn_plus N M K ->
+    i_add2 X Y Z ->
+    i_add2 (i/c N X) (i/c M Y) (i/c K Z).
+
+i_mid : i -> i -> i -> cotype.
+%mode i_mid +N +N -N.
+i_mid/def : {X : i} {Y : i} {Z : i} {W : i} {TWO : tn}
+    i_add2 X Y Z ->
+    tn_two TWO ->
+    i_div_by_pos_tn Z TWO W ->
+    i_mid X Y W.
+
+i_half : i -> cotype.
+%mode i_half -N.
+i_half/def : {Y : i} 
+    i_zero Y ->
+    i_half (i/c (tn_p1 tn_e) Y).
+
+i_half_2 : i -> cotype.
+%mode i_half_2 -N.
+i_half_2/def : {Y : i}  { Z : i} { W : i}
+    i_one Y ->
+    i_zero Z -> 
+    i_mid Y Z W ->
+    i_half_2 W.
+
+i_fiveTwelfth : i -> cotype.
+%mode i_fiveTwelfth -N.
+i_fiveTwelfth/def : {X : i} {Y : i} {Z : i} 
+    i_half X ->
+    i_oneThird Y ->
+    i_mid X Y Z ->
+    i_fiveTwelfth Z.
+
+    
+
+
+%% one = 1 :: one
+%% is_one : I -> cotype.
+%% is_one/def : {X : I} is_one X -> is_one (i/c (tn_p1 tn_e) X).
+
+%% is_zero: I -> cotype.
+%% is_zero/def : {X : I} is_zero X -> is_zero (i/c (tn_e) X).
+
+%% is_negone: I -> cotype.

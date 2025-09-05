@@ -1,0 +1,296 @@
+type bin = +{'e : 1, 'b0 : bin, 'b1 : bin}
+type stream = +{'scons : (bin * stream)}
+
+
+proc get_b0 (d : bin)  = 
+  cut y : 1
+    get_b0_Re y
+  write d 'e y
+
+proc get_b0_Re (d : 1)  = 
+  write d ()
+
+proc bsucc (d : bin) (x0 : bin)  = 
+  read x0 {
+    | 'e(x0) => 
+      bsucc_L0e d x0
+    | 'b0(x0) => 
+      bsucc_L0b0 d x0
+    | 'b1(x0) => 
+      bsucc_L0b1 d x0
+  }
+
+proc bsucc_L0b1 (d : bin) (x0 : bin)  = 
+  cut y : bin
+    bsucc y x0
+  write d 'b0 y
+
+proc bsucc_L0b0 (d : bin) (x0 : bin)  = 
+  cut y : bin
+    bsucc_L0b0_Rb1 y x0
+  write d 'b1 y
+
+proc bsucc_L0b0_Rb1 (d : bin) (x0 : bin)  = 
+  id d x0
+
+proc bsucc_L0e (d : bin) (x0 : 1)  = 
+  read x0 {
+    | () => 
+      bsucc_L0e_Lunit d
+  }
+
+proc bsucc_L0e_Lunit (d : bin)  = 
+  cut y : bin
+    bsucc_L0e_Lunit_Rb1 y
+  write d 'b1 y
+
+proc bsucc_L0e_Lunit_Rb1 (d : bin)  = 
+  cut y : 1
+    bsucc_L0e_Lunit_Rb1_Re y
+  write d 'e y
+
+proc bsucc_L0e_Lunit_Rb1_Re (d : 1)  = 
+  write d ()
+
+proc bpred (d : bin) (x0 : bin)  = 
+  read x0 {
+    | 'e(x0) => 
+      bpred_L0e d x0
+    | 'b0(x0) => 
+      bpred_L0b0 d x0
+    | 'b1(x0) => 
+      bpred_L0b1 d x0
+    | 'b1(x0) => 
+      bpred_L0b1.1 d x0
+    | 'b1(x0) => 
+      bpred_L0b1.1.1 d x0
+  }
+
+proc bpred_L0b1.1.1 (d : bin) (x0 : bin)  = 
+  read x0 {
+    | 'b1(x0) => 
+      bpred_L0b1.1.1_L0b1 d x0
+  }
+
+proc bpred_L0b1.1.1_L0b1 (d : bin) (x0 : bin)  = 
+  cut y : bin
+    bpred_L0b1.1.1_L0b1_Rb0 y x0
+  write d 'b0 y
+
+proc bpred_L0b1.1.1_L0b1_Rb0 (d : bin) (x0 : bin)  = 
+  cut y : bin
+    bpred_L0b1.1.1_L0b1_Rb0_Rb1 y x0
+  write d 'b1 y
+
+proc bpred_L0b1.1.1_L0b1_Rb0_Rb1 (d : bin) (x0 : bin)  = 
+  id d x0
+
+proc bpred_L0b1.1 (d : bin) (x0 : bin)  = 
+  read x0 {
+    | 'b0(x0) => 
+      bpred_L0b1.1_L0b0 d x0
+  }
+
+proc bpred_L0b1.1_L0b0 (d : bin) (x0 : bin)  = 
+  cut y : bin
+    bpred_L0b1.1_L0b0_Rb0 y x0
+  write d 'b0 y
+
+proc bpred_L0b1.1_L0b0_Rb0 (d : bin) (x0 : bin)  = 
+  cut y : bin
+    bpred_L0b1.1_L0b0_Rb0_Rb0 y x0
+  write d 'b0 y
+
+proc bpred_L0b1.1_L0b0_Rb0_Rb0 (d : bin) (x0 : bin)  = 
+  id d x0
+
+proc bpred_L0b1 (d : bin) (x0 : bin)  = 
+  read x0 {
+    | 'e(x0) => 
+      bpred_L0b1_L0e d x0
+  }
+
+proc bpred_L0b1_L0e (d : bin) (x0 : 1)  = 
+  read x0 {
+    | () => 
+      bpred_L0b1_L0e_Lunit d
+  }
+
+proc bpred_L0b1_L0e_Lunit (d : bin)  = 
+  cut y : 1
+    bpred_L0b1_L0e_Lunit_Re y
+  write d 'e y
+
+proc bpred_L0b1_L0e_Lunit_Re (d : 1)  = 
+  write d ()
+
+proc bpred_L0b0 (d : bin) (x0 : bin)  = 
+  cut y : bin
+    bpred y x0
+  write d 'b1 y
+
+proc bpred_L0e (d : bin) (x0 : 1)  = 
+  read x0 {
+    | () => 
+      bpred_L0e_Lunit d
+  }
+
+proc bpred_L0e_Lunit (d : bin)  = 
+  cut y : 1
+    bpred_L0e_Lunit_Re y
+  write d 'e y
+
+proc bpred_L0e_Lunit_Re (d : 1)  = 
+  write d ()
+
+proc bin_dup (d : (bin * bin)) (x0 : bin)  = 
+  read x0 {
+    | 'e(x0) => 
+      bin_dup_L0e d x0
+    | 'b0(x0) => 
+      bin_dup_L0b0 d x0
+    | 'b1(x0) => 
+      bin_dup_L0b1 d x0
+  }
+
+proc bin_dup_L0b1 (d : (bin * bin)) (x0 : bin)  = 
+  cut y : (bin * bin)
+    bin_dup y x0
+  bin_dup_L0b1_cut d y
+
+proc bin_dup_L0b1_cut (d : (bin * bin)) (x0 : (bin * bin))  = 
+  read x0 {
+    | (y, z) => 
+      bin_dup_L0b1_cut_Lpair d y z
+  }
+
+proc bin_dup_L0b1_cut_Lpair (d : (bin * bin)) (x0 : bin) (x1 : bin)  = 
+  cut y : bin
+    bin_dup_L0b1_cut_Lpair_Rleft y x0
+  cut z : bin
+    bin_dup_L0b1_cut_Lpair_Rright z x1
+  write d (y, z)
+
+proc bin_dup_L0b1_cut_Lpair_Rleft (d : bin) (x0 : bin)  = 
+  cut y : bin
+    bin_dup_L0b1_cut_Lpair_Rleft_Rb1 y x0
+  write d 'b1 y
+
+proc bin_dup_L0b1_cut_Lpair_Rleft_Rb1 (d : bin) (x0 : bin)  = 
+  id d x0
+
+proc bin_dup_L0b1_cut_Lpair_Rright (d : bin) (x0 : bin)  = 
+  cut y : bin
+    bin_dup_L0b1_cut_Lpair_Rright_Rb1 y x0
+  write d 'b1 y
+
+proc bin_dup_L0b1_cut_Lpair_Rright_Rb1 (d : bin) (x0 : bin)  = 
+  id d x0
+
+proc bin_dup_L0b0 (d : (bin * bin)) (x0 : bin)  = 
+  cut y : (bin * bin)
+    bin_dup y x0
+  bin_dup_L0b0_cut d y
+
+proc bin_dup_L0b0_cut (d : (bin * bin)) (x0 : (bin * bin))  = 
+  read x0 {
+    | (y, z) => 
+      bin_dup_L0b0_cut_Lpair d y z
+  }
+
+proc bin_dup_L0b0_cut_Lpair (d : (bin * bin)) (x0 : bin) (x1 : bin)  = 
+  cut y : bin
+    bin_dup_L0b0_cut_Lpair_Rleft y x0
+  cut z : bin
+    bin_dup_L0b0_cut_Lpair_Rright z x1
+  write d (y, z)
+
+proc bin_dup_L0b0_cut_Lpair_Rleft (d : bin) (x0 : bin)  = 
+  cut y : bin
+    bin_dup_L0b0_cut_Lpair_Rleft_Rb0 y x0
+  write d 'b0 y
+
+proc bin_dup_L0b0_cut_Lpair_Rleft_Rb0 (d : bin) (x0 : bin)  = 
+  id d x0
+
+proc bin_dup_L0b0_cut_Lpair_Rright (d : bin) (x0 : bin)  = 
+  cut y : bin
+    bin_dup_L0b0_cut_Lpair_Rright_Rb0 y x0
+  write d 'b0 y
+
+proc bin_dup_L0b0_cut_Lpair_Rright_Rb0 (d : bin) (x0 : bin)  = 
+  id d x0
+
+proc bin_dup_L0e (d : (bin * bin)) (x0 : 1)  = 
+  read x0 {
+    | () => 
+      bin_dup_L0e_Lunit d
+  }
+
+proc bin_dup_L0e_Lunit (d : (bin * bin))  = 
+  cut y : bin
+    bin_dup_L0e_Lunit_Rleft y
+  cut z : bin
+    bin_dup_L0e_Lunit_Rright z
+  write d (y, z)
+
+proc bin_dup_L0e_Lunit_Rleft (d : bin)  = 
+  cut y : 1
+    bin_dup_L0e_Lunit_Rleft_Re y
+  write d 'e y
+
+proc bin_dup_L0e_Lunit_Rleft_Re (d : 1)  = 
+  write d ()
+
+proc bin_dup_L0e_Lunit_Rright (d : bin)  = 
+  cut y : 1
+    bin_dup_L0e_Lunit_Rright_Re y
+  write d 'e y
+
+proc bin_dup_L0e_Lunit_Rright_Re (d : 1)  = 
+  write d ()
+
+proc up (d : stream) (x0 : bin)  = 
+  cut y : (bin * bin)
+    bin_dup y x0
+  up_cut d y
+
+proc up_cut (d : stream) (x0 : (bin * bin))  = 
+  read x0 {
+    | (y, z) => 
+      up_cut_Lpair d y z
+  }
+
+proc up_cut_Lpair (d : stream) (x0 : bin) (x1 : bin)  = 
+  cut y : bin
+    bsucc y x0
+  up_cut_Lpair_cut d x1 y
+
+proc up_cut_Lpair_cut (d : stream) (x0 : bin) (x1 : bin)  = 
+  cut y : stream
+    up y x1
+  up_cut_Lpair_cut_cut d x0 y
+
+proc up_cut_Lpair_cut_cut (d : stream) (x0 : bin) (x1 : stream)  = 
+  cut y : (bin * stream)
+    up_cut_Lpair_cut_cut_Rscons y x0 x1
+  write d 'scons y
+
+proc up_cut_Lpair_cut_cut_Rscons (d : (bin * stream)) (x0 : bin) (x1 : stream)  = 
+  cut y : bin
+    up_cut_Lpair_cut_cut_Rscons_Rleft y x0
+  cut z : stream
+    up_cut_Lpair_cut_cut_Rscons_Rright z x1
+  write d (y, z)
+
+proc up_cut_Lpair_cut_cut_Rscons_Rleft (d : bin) (x0 : bin)  = 
+  id d x0
+
+proc up_cut_Lpair_cut_cut_Rscons_Rright (d : stream) (x0 : stream)  = 
+  id d x0
+
+proc main (d : stream)  = 
+  cut y : bin
+    get_b0 y
+  up d y
+

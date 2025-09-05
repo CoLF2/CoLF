@@ -1,0 +1,56 @@
+nat : cotype.
+a : nat.
+b : nat.
+
+
+
+stream : cotype.
+cons : nat -> stream -> stream.
+
+%% nat_dup : nat -> nat -> nat -> cotype.
+%% %mode nat_dup + - -.
+%% nat_dup/def : nat_dup A A A.
+
+stream_of : nat -> stream -> cotype.
+%mode stream_of + -.
+stream_of/def : 
+    stream_of A Y -> 
+    stream_of A (cons A Y).
+
+stream_of_a : stream = cons a (stream_of_a).
+
+stream_of_b : stream = cons b (stream_of_b).
+
+
+
+stream_merge_alternating : stream -> stream -> stream -> cotype.
+%mode stream_merge_alternating + + -.
+stream_merge_alternating/def : 
+    stream_merge_alternating Y W Z ->
+    stream_merge_alternating (cons A W) Y (cons A Z).
+
+%% stream_merge_alternating2 : stream -> stream -> stream -> cotype.
+%% %mode stream_merge_alternating2 + + -.
+%% %mode stream_merge_alternating + + -.
+%% stream_merge_alternating/def : 
+%%     stream_merge_alternating2 W Y Z ->
+%%     stream_merge_alternating (cons A W) Y (cons A Z).
+%% stream_merge_alternating2/def : 
+%%     stream_merge_alternating W Y Z ->
+%%     stream_merge_alternating2 W (cons A Y) (cons A Z).
+
+
+
+    
+
+
+main : stream -> cotype.
+%mode main -.
+main/def : stream_merge_alternating stream_of_a stream_of_b Z ->
+    main Z.
+
+
+
+
+
+

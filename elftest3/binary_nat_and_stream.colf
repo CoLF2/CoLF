@@ -1,0 +1,64 @@
+
+bin : cotype.
+e : bin.
+b0 : bin -> bin.
+b1 : bin -> bin.
+
+get_b0 : bin -> cotype.
+%mode get_b0 -.
+get_b0/e : get_b0 e.
+
+
+bsucc : bin -> bin -> cotype.
+%mode bsucc + -.
+bsucc/e : bsucc e (b1 e).
+bsucc/b0 : {A : bin} 
+    bsucc (b0 A) (b1 A).
+bsucc/b1 : {A : bin} {B : bin} 
+    bsucc A B -> 
+    bsucc (b1 A) (b0 B).
+
+bpred : bin -> bin -> cotype.
+%mode bpred + -.
+bpred/e : bpred e e.
+bpred/b0 : {A : bin} {B : bin}
+    bpred A B ->
+    bpred (b0 A) (b1 B).
+bpred/b1e : bpred (b1 e) (e).
+bpred/b1b0 : {A : bin}  
+    bpred (b1 (b0 A)) (b0 (b0 A)).
+bpred/b1b1 : {A : bin} 
+    bpred (b1 (b1 A)) (b0 (b1 A)).
+
+
+
+bin_dup : bin -> bin -> bin -> cotype.
+%mode bin_dup + - -.
+bin_dup/e : bin_dup e e e.
+bin_dup/b0 : {A : bin} {B : bin} {C : bin}
+    bin_dup A B C ->
+    bin_dup (b0 A) (b0 B) (b0 C).
+bin_dup/b1 : {A : bin} {B : bin} {C : bin}
+    bin_dup A B C ->
+    bin_dup (b1 A) (b1 B) (b1 C).
+
+stream : cotype. 
+scons : bin -> stream -> stream.
+
+up : bin -> stream -> cotype.
+%mode up + -.
+up/def : {X : bin} {Y : bin} {S : stream} {X1 : bin} {X2 : bin}
+    bin_dup X X1 X2 ->
+    bsucc X1 Y ->
+    up Y S ->
+    up X (scons X2 S).
+
+main : stream -> cotype.
+%mode main -.
+main/def : {X : bin} {S : stream}
+    get_b0 X ->
+    up X S ->
+    main S.
+
+
+

@@ -1,0 +1,72 @@
+nat : cotype.
+zero : 1 -> nat.
+succ : nat -> nat.
+
+nat_dup : nat >=> (nat * nat).
+nat_dealloc : nat >=> 1.
+half : nat >=> nat.
+half_L0succ_1 : nat >=> nat.
+half_L0succ_1_L0succ : nat >=> nat.
+half_L0succ : nat >=> nat.
+half_L0succ_L0zero : 1 >=> nat.
+half_L0succ_L0zero_Lunit :  >=> nat.
+half_L0succ_L0zero_Lunit_Rzero :  >=> 1.
+half_L0zero : 1 >=> nat.
+half_L0zero_Lunit :  >=> nat.
+half_L0zero_Lunit_Rzero :  >=> 1.
+two :  >=> nat.
+two_Rsucc :  >=> nat.
+two_Rsucc_Rsucc :  >=> nat.
+two_Rsucc_Rsucc_Rzero :  >=> 1.
+four :  >=> nat.
+four_Rsucc :  >=> nat.
+four_Rsucc_Rsucc :  >=> nat.
+four_Rsucc_Rsucc_Rsucc :  >=> nat.
+four_Rsucc_Rsucc_Rsucc_Rsucc :  >=> nat.
+four_Rsucc_Rsucc_Rsucc_Rsucc_Rzero :  >=> 1.
+main :  >=> nat.
+
+nat_dup_def : Nat >= nat_dup >= (Nat , Nat).
+nat_dealloc_def : Nat >= nat_dealloc >= ().
+half/z :  >= half_L0zero_Lunit_Rzero >= ().
+half_L0zero_Lunit_Rzero_intro :  >= half_L0zero_Lunit_Rzero >= Y ->
+    >= half_L0zero_Lunit >= (zero Y).
+half_L0zero_Lunit_intro :  >= half_L0zero_Lunit >= Y ->
+   () >= half_L0zero >= Y.
+half_L0zero_intro : X0 >= half_L0zero >= Y ->
+   (zero X0) >= half >= Y.
+half/s2 :  >= half_L0succ_L0zero_Lunit_Rzero >= ().
+half_L0succ_L0zero_Lunit_Rzero_intro :  >= half_L0succ_L0zero_Lunit_Rzero >= Y ->
+    >= half_L0succ_L0zero_Lunit >= (zero Y).
+half_L0succ_L0zero_Lunit_intro :  >= half_L0succ_L0zero_Lunit >= Y ->
+   () >= half_L0succ_L0zero >= Y.
+half_L0succ_L0zero_intro : X0 >= half_L0succ_L0zero >= Y ->
+   (zero X0) >= half_L0succ >= Y.
+half_L0succ_intro : X0 >= half_L0succ >= Y ->
+   (succ X0) >= half >= Y.
+half/s : X >= half_L0succ_1_L0succ >= X.
+half_L0succ_1_L0succ_intro : X0 >= half_L0succ_1_L0succ >= Y ->
+   (succ X0) >= half_L0succ_1 >= Y.
+half_L0succ_1_intro : X0 >= half_L0succ_1 >= Y ->
+   (succ X0) >= half >= Y.
+two_def :  >= two_Rsucc_Rsucc_Rzero >= ().
+two_Rsucc_Rsucc_Rzero_intro :  >= two_Rsucc_Rsucc_Rzero >= Y ->
+    >= two_Rsucc_Rsucc >= (zero Y).
+two_Rsucc_Rsucc_intro :  >= two_Rsucc_Rsucc >= Y ->
+    >= two_Rsucc >= (succ Y).
+two_Rsucc_intro :  >= two_Rsucc >= Y ->
+    >= two >= (succ Y).
+four_def :  >= four_Rsucc_Rsucc_Rsucc_Rsucc_Rzero >= ().
+four_Rsucc_Rsucc_Rsucc_Rsucc_Rzero_intro :  >= four_Rsucc_Rsucc_Rsucc_Rsucc_Rzero >= Y ->
+    >= four_Rsucc_Rsucc_Rsucc_Rsucc >= (zero Y).
+four_Rsucc_Rsucc_Rsucc_Rsucc_intro :  >= four_Rsucc_Rsucc_Rsucc_Rsucc >= Y ->
+    >= four_Rsucc_Rsucc_Rsucc >= (succ Y).
+four_Rsucc_Rsucc_Rsucc_intro :  >= four_Rsucc_Rsucc_Rsucc >= Y ->
+    >= four_Rsucc_Rsucc >= (succ Y).
+four_Rsucc_Rsucc_intro :  >= four_Rsucc_Rsucc >= Y ->
+    >= four_Rsucc >= (succ Y).
+four_Rsucc_intro :  >= four_Rsucc >= Y ->
+    >= four >= (succ Y).
+main/def :  >= four >= Four ->
+   Four >= half >= C ->
+    >= main >= C.

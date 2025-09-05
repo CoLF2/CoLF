@@ -1,0 +1,62 @@
+nat : cotype.
+zero : 1 -> nat.
+succ : nat -> nat.
+
+add : nat , nat >=> nat.
+add_Lsucc : nat , nat >=> nat.
+add_Lzero : 1 , nat >=> nat.
+add_Lzero_Lunit : nat >=> nat.
+two :  >=> nat.
+two_Rsucc :  >=> nat.
+two_Rsucc_Rsucc :  >=> nat.
+two_Rsucc_Rsucc_Rzero :  >=> 1.
+add' : nat , nat >=> nat.
+main :  >=> nat.
+main_cut : nat >=> nat.
+main_cut_P1 :  >=> nat.
+main_cut_P1_Rsucc :  >=> nat.
+main_cut_P1_Rsucc_Rsucc :  >=> nat.
+main_cut_P1_Rsucc_Rsucc_Rzero :  >=> 1.
+main_P0 :  >=> nat.
+main_P0_Rsucc :  >=> nat.
+main_P0_Rsucc_Rsucc :  >=> nat.
+main_P0_Rsucc_Rsucc_Rzero :  >=> 1.
+
+add/0 : B >= add_Lzero_Lunit >= B.
+add_Lzero_Lunit_intro : X1 >= add_Lzero_Lunit >= Y ->
+   (), X1 >= add_Lzero >= Y.
+add_Lzero_intro : X0, X1 >= add_Lzero >= Y ->
+   (zero X0), X1 >= add >= Y.
+add/s : A, B >= add >= C ->
+   A, B >= add_Lsucc >= (succ C).
+add_Lsucc_intro : X0, X1 >= add_Lsucc >= Y ->
+   (succ X0), X1 >= add >= Y.
+two/def :  >= two_Rsucc_Rsucc_Rzero >= ().
+two_Rsucc_Rsucc_Rzero_intro :  >= two_Rsucc_Rsucc_Rzero >= Y ->
+    >= two_Rsucc_Rsucc >= (zero Y).
+two_Rsucc_Rsucc_intro :  >= two_Rsucc_Rsucc >= Y ->
+    >= two_Rsucc >= (succ Y).
+two_Rsucc_intro :  >= two_Rsucc >= Y ->
+    >= two >= (succ Y).
+add'/def : B, A >= add >= C ->
+   A, B >= add' >= C.
+main/def :  >= main_P0 >= Y ->
+   Y >= main_cut >= U ->
+    >= main >= U.
+main_cut_intro :  >= main_cut_P1 >= X_1 ->
+   X, X_1 >= add' >= C ->
+   X >= main_cut >= C.
+main_cut_P1_intro :  >= main_cut_P1_Rsucc_Rsucc_Rzero >= ().
+main_cut_P1_Rsucc_Rsucc_Rzero_intro :  >= main_cut_P1_Rsucc_Rsucc_Rzero >= Y ->
+    >= main_cut_P1_Rsucc_Rsucc >= (zero Y).
+main_cut_P1_Rsucc_Rsucc_intro :  >= main_cut_P1_Rsucc_Rsucc >= Y ->
+    >= main_cut_P1_Rsucc >= (succ Y).
+main_cut_P1_Rsucc_intro :  >= main_cut_P1_Rsucc >= Y ->
+    >= main_cut_P1 >= (succ Y).
+main_P0_intro :  >= main_P0_Rsucc_Rsucc_Rzero >= ().
+main_P0_Rsucc_Rsucc_Rzero_intro :  >= main_P0_Rsucc_Rsucc_Rzero >= Y ->
+    >= main_P0_Rsucc_Rsucc >= (zero Y).
+main_P0_Rsucc_Rsucc_intro :  >= main_P0_Rsucc_Rsucc >= Y ->
+    >= main_P0_Rsucc >= (succ Y).
+main_P0_Rsucc_intro :  >= main_P0_Rsucc >= Y ->
+    >= main_P0 >= (succ Y).

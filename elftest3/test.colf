@@ -1,0 +1,17 @@
+nat : cotype.
+zero : nat.
+succ : nat -> nat.
+
+half : nat -> nat -> cotype.
+%mode half + -.
+half/z : half zero zero.
+half/s2 : half (succ (zero)) zero.
+half/s : half (succ (succ X)) X.
+
+two : nat = succ (succ zero).
+four : nat = succ (succ (succ (succ zero))).
+
+
+main : nat -> cotype.
+%mode main -.
+main/def : half four C -> main C.

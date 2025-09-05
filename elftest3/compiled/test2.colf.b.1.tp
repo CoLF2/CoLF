@@ -1,0 +1,88 @@
+nat : cotype.
+bool : cotype.
+zero : 1 -> nat.
+succ : nat -> nat.
+true : 1 -> bool.
+false : 1 -> bool.
+
+nat_dup : nat >=> (nat * nat).
+nat_dealloc : nat >=> 1.
+bool_dup : bool >=> (bool * bool).
+bool_dealloc : bool >=> 1.
+iszero : nat >=> bool.
+iszero_L0succ_1 : nat >=> bool.
+iszero_L0succ_1_cut : nat >=> bool.
+iszero_L0succ_1_cut_cut : bool >=> bool.
+iszero_L0succ_1_cut_cut_L0true : 1 >=> bool.
+iszero_L0succ_1_cut_cut_L0true_Lunit :  >=> bool.
+iszero_L0succ_1_cut_cut_L0true_Lunit_Rfalse :  >=> 1.
+iszero_L0succ_1_P0 : nat >=> nat.
+iszero_L0succ_1_P0_Rsucc : nat >=> nat.
+iszero_L0succ : nat >=> bool.
+iszero_L0succ_cut : nat >=> bool.
+iszero_L0succ_cut_cut : bool >=> bool.
+iszero_L0succ_cut_cut_L0false : 1 >=> bool.
+iszero_L0succ_cut_cut_L0false_Lunit :  >=> bool.
+iszero_L0succ_cut_cut_L0false_Lunit_Rfalse :  >=> 1.
+iszero_L0succ_P0 : nat >=> nat.
+iszero_L0succ_P0_Rsucc : nat >=> nat.
+iszero_L0zero : 1 >=> bool.
+iszero_L0zero_Lunit :  >=> bool.
+iszero_L0zero_Lunit_Rtrue :  >=> 1.
+main :  >=> bool.
+main_P0 :  >=> nat.
+main_P0_Rzero :  >=> 1.
+
+nat_dup_def : Nat >= nat_dup >= (Nat , Nat).
+nat_dealloc_def : Nat >= nat_dealloc >= ().
+bool_dup_def : Bool >= bool_dup >= (Bool , Bool).
+bool_dealloc_def : Bool >= bool_dealloc >= ().
+iszero/z :  >= iszero_L0zero_Lunit_Rtrue >= ().
+iszero_L0zero_Lunit_Rtrue_intro :  >= iszero_L0zero_Lunit_Rtrue >= Y ->
+    >= iszero_L0zero_Lunit >= (true Y).
+iszero_L0zero_Lunit_intro :  >= iszero_L0zero_Lunit >= Y ->
+   () >= iszero_L0zero >= Y.
+iszero_L0zero_intro : X0 >= iszero_L0zero >= Y ->
+   (zero X0) >= iszero >= Y.
+iszero/sf : X >= iszero_L0succ_P0 >= Y ->
+   Y >= iszero_L0succ_cut >= U ->
+   X >= iszero_L0succ >= U.
+iszero_L0succ_cut_intro : X_1 >= iszero >= Y ->
+   Y >= iszero_L0succ_cut_cut >= U ->
+   X_1 >= iszero_L0succ_cut >= U.
+iszero_L0succ_cut_cut_intro :  >= iszero_L0succ_cut_cut_L0false_Lunit_Rfalse >= ().
+iszero_L0succ_cut_cut_L0false_Lunit_Rfalse_intro :  >= iszero_L0succ_cut_cut_L0false_Lunit_Rfalse >= Y ->
+    >= iszero_L0succ_cut_cut_L0false_Lunit >= (false Y).
+iszero_L0succ_cut_cut_L0false_Lunit_intro :  >= iszero_L0succ_cut_cut_L0false_Lunit >= Y ->
+   () >= iszero_L0succ_cut_cut_L0false >= Y.
+iszero_L0succ_cut_cut_L0false_intro : X0 >= iszero_L0succ_cut_cut_L0false >= Y ->
+   (false X0) >= iszero_L0succ_cut_cut >= Y.
+iszero_L0succ_P0_intro : X >= iszero_L0succ_P0_Rsucc >= X.
+iszero_L0succ_P0_Rsucc_intro : X0 >= iszero_L0succ_P0_Rsucc >= Y ->
+   X0 >= iszero_L0succ_P0 >= (succ Y).
+iszero_L0succ_intro : X0 >= iszero_L0succ >= Y ->
+   (succ X0) >= iszero >= Y.
+iszero/st : X >= iszero_L0succ_1_P0 >= Y ->
+   Y >= iszero_L0succ_1_cut >= U ->
+   X >= iszero_L0succ_1 >= U.
+iszero_L0succ_1_cut_intro : X_1 >= iszero >= Y ->
+   Y >= iszero_L0succ_1_cut_cut >= U ->
+   X_1 >= iszero_L0succ_1_cut >= U.
+iszero_L0succ_1_cut_cut_intro :  >= iszero_L0succ_1_cut_cut_L0true_Lunit_Rfalse >= ().
+iszero_L0succ_1_cut_cut_L0true_Lunit_Rfalse_intro :  >= iszero_L0succ_1_cut_cut_L0true_Lunit_Rfalse >= Y ->
+    >= iszero_L0succ_1_cut_cut_L0true_Lunit >= (false Y).
+iszero_L0succ_1_cut_cut_L0true_Lunit_intro :  >= iszero_L0succ_1_cut_cut_L0true_Lunit >= Y ->
+   () >= iszero_L0succ_1_cut_cut_L0true >= Y.
+iszero_L0succ_1_cut_cut_L0true_intro : X0 >= iszero_L0succ_1_cut_cut_L0true >= Y ->
+   (true X0) >= iszero_L0succ_1_cut_cut >= Y.
+iszero_L0succ_1_P0_intro : X >= iszero_L0succ_1_P0_Rsucc >= X.
+iszero_L0succ_1_P0_Rsucc_intro : X0 >= iszero_L0succ_1_P0_Rsucc >= Y ->
+   X0 >= iszero_L0succ_1_P0 >= (succ Y).
+iszero_L0succ_1_intro : X0 >= iszero_L0succ_1 >= Y ->
+   (succ X0) >= iszero >= Y.
+main/def :  >= main_P0 >= X ->
+   X >= iszero >= C ->
+    >= main >= C.
+main_P0_intro :  >= main_P0_Rzero >= ().
+main_P0_Rzero_intro :  >= main_P0_Rzero >= Y ->
+    >= main_P0 >= (zero Y).

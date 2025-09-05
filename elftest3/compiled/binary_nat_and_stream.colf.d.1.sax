@@ -1,0 +1,97 @@
+type bin = +{'e : 1, 'b0 : bin, 'b1 : bin}
+type stream = +{'scons : (bin * stream)}
+
+
+proc bsucc (d : bin) (x0 : bin)  = 
+  read x0 {
+    | 'e(x0) => 
+      read x0 {
+        | () => 
+          cut y : bin
+            cut y_1 : 1
+              write y_1 ()
+            write y 'e y_1
+          write d 'b1 y
+      }
+    | 'b0(x0) => 
+      cut y : bin
+        id y x0
+      write d 'b1 y
+    | 'b1(x0) => 
+      cut y : bin
+        bsucc y x0
+      write d 'b0 y
+  }
+
+proc bin_dup (d : (bin * bin)) (x0 : bin)  = 
+  read x0 {
+    | 'e(x0) => 
+      read x0 {
+        | () => 
+          cut y : bin
+            cut y_1 : 1
+              write y_1 ()
+            write y 'e y_1
+          cut z : bin
+            cut y : 1
+              write y ()
+            write z 'e y
+          write d (y, z)
+      }
+    | 'b0(x0) => 
+      cut y : (bin * bin)
+        bin_dup y x0
+      read y {
+        | (y_1, z) => 
+          cut y : bin
+            cut y_1_1 : bin
+              id y_1_1 y_1
+            write y 'b0 y_1_1
+          cut z_1 : bin
+            cut y : bin
+              id y z
+            write z_1 'b0 y
+          write d (y, z_1)
+      }
+    | 'b1(x0) => 
+      cut y : (bin * bin)
+        bin_dup y x0
+      read y {
+        | (y_1, z) => 
+          cut y : bin
+            cut y_1_1 : bin
+              id y_1_1 y_1
+            write y 'b1 y_1_1
+          cut z_1 : bin
+            cut y : bin
+              id y z
+            write z_1 'b1 y
+          write d (y, z_1)
+      }
+  }
+
+proc up (d : stream) (x0 : bin)  = 
+  cut y : (bin * bin)
+    bin_dup y x0
+  read y {
+    | (y_1, z) => 
+      cut y : bin
+        bsucc y y_1
+      cut y_1 : stream
+        up y_1 y
+      cut y : (bin * stream)
+        cut y_1_1 : bin
+          id y_1_1 z
+        cut z_1 : stream
+          id z_1 y_1
+        write y (y_1_1, z_1)
+      write d 'scons y
+  }
+
+proc main (d : stream)  = 
+  cut y : bin
+    cut y_1 : 1
+      write y_1 ()
+    write y 'e y_1
+  up d y
+

@@ -1,0 +1,14 @@
+Now reconstructs just like Twelf.
+
+
+
+
+
+TODO 1: 
+
+Considering how definitiions are checked:
+we should be able to elaborate type definitiions before they are referenced in types, 
+e.g.
+r = ...
+c : a r = ....
+Then, before type-checking c, the body of r needs to be checked.

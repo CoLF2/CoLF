@@ -1,0 +1,131 @@
+type nat = +{'zero : 1, 'succ : nat}
+type bool = +{'true : 1, 'false : 1}
+
+
+proc nat_dup (d : (nat * nat)) (x0 : nat)  = 
+  write d (x0, x0)
+
+proc nat_dealloc (d : 1) (x0 : nat)  = 
+  write d ()
+
+proc bool_dup (d : (bool * bool)) (x0 : bool)  = 
+  write d (x0, x0)
+
+proc bool_dealloc (d : 1) (x0 : bool)  = 
+  write d ()
+
+proc iszero (d : bool) (x0 : nat)  = 
+  read x0 {
+    | 'zero(x0) => 
+      iszero_L0zero d x0
+    | 'succ(x0) => 
+      iszero_L0succ d x0
+  }
+
+proc iszero_L0succ_1 (d : bool) (x0 : nat)  = 
+  cut y : nat
+    iszero_L0succ_1_P0 y x0
+  iszero_L0succ_1_cut d y
+
+proc iszero_L0succ_1_cut (d : bool) (x0 : nat)  = 
+  cut y : bool
+    iszero y x0
+  iszero_L0succ_1_cut_cut d y
+
+proc iszero_L0succ_1_cut_cut (d : bool) (x0 : bool)  = 
+  read x0 {
+    | 'true(x0) => 
+      iszero_L0succ_1_cut_cut_L0true d x0
+    | 'false(x0) => 
+      iszero_L0succ_cut_cut_L0false d x0
+  }
+
+proc iszero_L0succ_1_cut_cut_L0true (d : bool) (x0 : 1)  = 
+  read x0 {
+    | () => 
+      iszero_L0succ_1_cut_cut_L0true_Lunit d
+  }
+
+proc iszero_L0succ_1_cut_cut_L0true_Lunit (d : bool)  = 
+  cut y : 1
+    iszero_L0succ_1_cut_cut_L0true_Lunit_Rfalse y
+  write d 'false y
+
+proc iszero_L0succ_1_cut_cut_L0true_Lunit_Rfalse (d : 1)  = 
+  write d ()
+
+proc iszero_L0succ_1_P0 (d : nat) (x0 : nat)  = 
+  cut y : nat
+    iszero_L0succ_1_P0_Rsucc y x0
+  write d 'succ y
+
+proc iszero_L0succ_1_P0_Rsucc (d : nat) (x0 : nat)  = 
+  id d x0
+
+proc iszero_L0succ (d : bool) (x0 : nat)  = 
+  cut y : nat
+    iszero_L0succ_P0 y x0
+  iszero_L0succ_cut d y
+
+proc iszero_L0succ_cut (d : bool) (x0 : nat)  = 
+  cut y : bool
+    iszero y x0
+  iszero_L0succ_cut_cut d y
+
+proc iszero_L0succ_cut_cut (d : bool) (x0 : bool)  = 
+  read x0 {
+    | 'false(x0) => 
+      iszero_L0succ_cut_cut_L0false d x0
+    | 'true(x0) => 
+      iszero_L0succ_1_cut_cut_L0true d x0
+  }
+
+proc iszero_L0succ_cut_cut_L0false (d : bool) (x0 : 1)  = 
+  read x0 {
+    | () => 
+      iszero_L0succ_cut_cut_L0false_Lunit d
+  }
+
+proc iszero_L0succ_cut_cut_L0false_Lunit (d : bool)  = 
+  cut y : 1
+    iszero_L0succ_cut_cut_L0false_Lunit_Rfalse y
+  write d 'false y
+
+proc iszero_L0succ_cut_cut_L0false_Lunit_Rfalse (d : 1)  = 
+  write d ()
+
+proc iszero_L0succ_P0 (d : nat) (x0 : nat)  = 
+  cut y : nat
+    iszero_L0succ_P0_Rsucc y x0
+  write d 'succ y
+
+proc iszero_L0succ_P0_Rsucc (d : nat) (x0 : nat)  = 
+  id d x0
+
+proc iszero_L0zero (d : bool) (x0 : 1)  = 
+  read x0 {
+    | () => 
+      iszero_L0zero_Lunit d
+  }
+
+proc iszero_L0zero_Lunit (d : bool)  = 
+  cut y : 1
+    iszero_L0zero_Lunit_Rtrue y
+  write d 'true y
+
+proc iszero_L0zero_Lunit_Rtrue (d : 1)  = 
+  write d ()
+
+proc main (d : bool)  = 
+  cut y : nat
+    main_P0 y
+  iszero d y
+
+proc main_P0 (d : nat)  = 
+  cut y : 1
+    main_P0_Rzero y
+  write d 'zero y
+
+proc main_P0_Rzero (d : 1)  = 
+  write d ()
+

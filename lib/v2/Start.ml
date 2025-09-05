@@ -1,4 +1,8 @@
-
+let () =
+  Sys.set_signal Sys.sigusr1 (Sys.Signal_handle (fun _ ->
+    Printexc.print_backtrace stdout;
+    flush stdout
+  ))
 let process_single_file fname = 
   (* let content = In_channel.read_all fname in *)
   let _ = print_endline "Read OK" in
@@ -8,8 +12,7 @@ let process_single_file fname =
   (* let _ = print_endline (CoLFSignature.CoLFSignature.debug_show_signature_raw signature) in *)
   (* let _ = print_endline (CoLFSignature.CoLFSignature.debug_show_signature signature) in *)
   let _ = print_endline (CoLFSignature.CoLFSignature.show_signature signature) in
-  let _ = TypeChecking.TypeChecking.type_check_signature signature in
-  let _ = print_endline " %% OK %%" in
+  let _ = CompiledExec.compiled_exec_top_level fname signature in
 
   ()
 
@@ -103,7 +106,7 @@ let entry (args : string list) : unit =
       )
       | Errors.Errors.CoLFError (ext, s) -> 
         (
-          let source_loc = match ext with | None -> "<unknown>" | Some ext -> Extent.Extent.show_extent ext in
+          let source_loc = match ext with | None -> "<unknown>" | Some ext -> AbtLib.Extent.show_extent ext in
           print_endline (source_loc ^ ":Error: " ^ s);
           Printexc.print_backtrace Stdlib.stdout;
           failwith "Exception Printed";

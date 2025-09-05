@@ -1,0 +1,89 @@
+
+dom : cotype.
+a : dom.
+b : dom.
+c : dom.
+plus : dom -> dom -> dom.
+minus : dom -> dom.
+zero : dom.
+
+
+stream : cotype.
+cons : dom -> stream -> stream.
+
+delay : stream -> stream -> cotype.
+%mode delay +A -B.
+delay/def : delay A (cons zero A).
+
+plus_stream : stream -> stream -> stream -> cotype.
+%mode plus_stream + + -.
+plus_stream/def : 
+    plus_stream A B C ->
+    plus_stream (cons X A) (cons Y B) (cons (plus X Y) C).
+
+minus_stream : stream -> stream -> cotype.
+%mode minus_stream + -.
+minus_stream/def : 
+    minus_stream A B ->
+    minus_stream (cons X A) (cons (minus X) B).
+
+
+
+diff : stream -> stream -> cotype.
+%mode diff +A -B.
+diff/def : 
+    delay S D -> 
+    minus_stream D M -> 
+    plus_stream S M R ->
+    diff S R.
+
+s_abc : stream = cons a (cons b (cons c s_abc)).
+
+
+integrate_helper : dom -> stream -> stream -> cotype.
+%mode integrate_helper + + -.
+integrate_helper/def : 
+    integrate_helper (plus X Y) S R ->
+    integrate_helper Y (cons X S) (cons (plus X Y) R).
+
+%% integrate : stream -> stream -> cotype.
+%% %mode integrate +A -B.
+%% integrate/def : 
+%%     integrate_helper zero A B ->
+%%     integrate A B.
+
+
+integrate : stream -> stream -> cotype.
+%mode integrate +A -B.
+integrate/def : 
+    integrate D B ->
+    plus_stream (cons zero B) D R ->
+    integrate D R.
+
+
+main : stream -> cotype.
+%mode main -.
+main/def : 
+    integrate s_abc S ->
+    diff S R ->
+    main R.
+
+
+
+%% lift : (dom -> dom) -> stream -> stream -> cotype.
+%% %mode lift +A +B -.
+%% lift/def : 
+%%     lift F A B ->
+%%     lift F (cons X A) (cons (F X) B).
+
+
+
+
+
+
+
+
+
+
+%% Mapping into nats
+%% equality

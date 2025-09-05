@@ -34,7 +34,7 @@ module MixfixParser
 
     type stack = (stack_elem * t_extent) list
 
-    module Extent = Extent.Extent
+    module Extent = AbtLib.Extent
 
 
     let mark_extent (expr: t_expr) (ext : t_extent) : t_expr = 
@@ -122,14 +122,14 @@ module MixfixParser
         | None -> None)
       | _ -> failwith "Not implemented"
 
-    let reduce_stack_top_with_op (stack : stack) (op : Operator.operator) : stack = 
+    let reduce_stack_top_with_op (stack : stack) (op : Operator.operator) : stack option = 
       let stack_tops = ListUtil.take (List.length op.components) stack in
       let args_and_extents = List.map2 (fun (stack_elem, ext) component -> 
         match stack_elem, component with
         | Expr e, Operator.CComponent _ -> Operator.PComponent e, ext
         | ArbitraryString s, Operator.CArbitraryContent _ -> Operator.PArbitraryContent s, ext
         | ArbitraryString s, Operator.CBinding _ -> Operator.PBinding s, ext
-        | OperatorComponent _, Operator.CKeyword k -> Operator.PKeyword k, ext
+        | OperatorComponent _, Operator.CKeyword k -> Operator.PKeyword (Extent.str_with_extent k ext), ext
         | _ -> failwith ("110 Not matching! stack_elem " ^ show_stack_elem stack_elem ^ " component " ^ Operator.debug_print_component component
         ^ " stack " ^ show_stack stack ^ " op " ^ Operator.debug_print_operator op ^ " stack_top " ^ show_stack stack_tops)
       ) (List.rev stack_tops) op.components in
@@ -140,17 +140,19 @@ module MixfixParser
         | h:: t  -> Extent.combine_extent h (List.nth t ((List.length t) - 1))
       ) in 
       try (
-        let reduced_exprs = op.reductions args in
-        (List.rev (List.map (fun x -> Expr (mark_extent x arg_extent), arg_extent) reduced_exprs) @ ListUtil.drop (List.length op.components) stack )
+        match op.reductions args  with
+        | None -> None
+        | Some reduced_exprs -> 
+          Some (List.rev (List.map (fun x -> Expr (mark_extent x arg_extent), arg_extent) reduced_exprs) @ ListUtil.drop (List.length op.components) stack )
       ) with Failure s -> (
         failwith (s ^ "\nFailed to reduce " ^  " with " ^ show_stack stack)
       )
 
 
-    (* reduce current stack considering all operators *)
-    let rec try_reduce_all_stack_with_applicable_ops (stack: stack) (all_reducible_operators : Operator.operator list) : stack = 
+    (* reduce current stack considering all operators, None indicates in consistencies due to individual operator's reductions *)
+    let rec try_reduce_all_stack_with_applicable_ops (stack: stack) (all_reducible_operators : Operator.operator list) : stack option = 
       match stack with 
-      | [] -> []
+      | [] -> Some []
       (* | UnknownSymbol s :: stack' -> (
         let unknown_symbol_expr = OperatorsSet.unknown_symbol_reduction s in
         try_reduce_all_stack_with_applicable_ops (Expr unknown_symbol_expr :: stack') all_reducible_operators
@@ -158,24 +160,26 @@ module MixfixParser
       (* | Space :: stack' -> try_reduce_all_stack_with_applicable_ops stack' all_reducible_operators *)
       | (OperatorComponent ((op, idx) as sop), _) :: _ -> (
         match get_next_op_component sop with 
-        | Some _  -> stack (* cannot reduce this, expecting more components *)
+        | Some _  -> Some stack (* cannot reduce this, expecting more components *)
         | None -> (
               if idx + 1 = List.length op.components  && List.mem op all_reducible_operators then (
-                let next_stack = reduce_stack_top_with_op stack op in 
-                try_reduce_all_stack_with_applicable_ops next_stack all_reducible_operators
+                Option.bind (reduce_stack_top_with_op stack op) (fun next_stack ->
+                  try_reduce_all_stack_with_applicable_ops next_stack all_reducible_operators
+                )
               ) else (
                 (* cannot reduce this, expecting more components *)
-                stack
+                Some stack
               )
 
         )
       )
       | (Expr _, _) :: (OperatorComponent ((op, idx)), _) :: _ -> (
         if idx + 2 = List.length op.components && List.mem op all_reducible_operators then (
-          let next_stack = reduce_stack_top_with_op stack op in 
-          try_reduce_all_stack_with_applicable_ops next_stack all_reducible_operators
+          Option.bind (reduce_stack_top_with_op stack op) (fun next_stack ->
+            try_reduce_all_stack_with_applicable_ops next_stack all_reducible_operators
+          )
         ) else (
-          stack
+          Some stack
         )
       )
       | (Expr e2, ext2) :: (Expr e1, ext1) :: stack' -> (
@@ -184,10 +188,10 @@ module MixfixParser
         if List.length possibly_reduced_expr = 1 then (
           try_reduce_all_stack_with_applicable_ops ((Expr (mark_extent (List.hd possibly_reduced_expr) final_extent), final_extent) :: stack') all_reducible_operators
         ) else (
-          (List.rev (List.map (fun x -> Expr (mark_extent x final_extent), final_extent) possibly_reduced_expr) @ stack')
+          Some (List.rev (List.map (fun x -> Expr (mark_extent x final_extent), final_extent) possibly_reduced_expr) @ stack')
         )
       )
-      | (Expr _, _) :: [] -> stack
+      | (Expr _, _) :: [] -> Some stack
       | _ -> failwith ("152 Not implemented : " ^ show_stack stack)
 
     (* let try_reduce_all_stack_with_tail_applications_only (stack: stack)  : stack = 
@@ -202,7 +206,7 @@ module MixfixParser
         )
         | _ -> stack *)
 
-    let try_reduce_all_stack (stack : stack) : stack = 
+    let try_reduce_all_stack (stack : stack) : stack option = 
       let all_reducible_operators = OperatorsSet.all_operators () in
       try_reduce_all_stack_with_applicable_ops stack all_reducible_operators 
 
@@ -232,13 +236,13 @@ module MixfixParser
             (match get_prev_op_component (op, idx-1) with
             | None  -> (* no prev prev component, check stack *)
               (match prev_reduced_stack with 
-                | (((Expr _, _)::_) as pvs ) -> Some ((OperatorComponent (op, idx), ext) :: pvs)
+                | Some (((Expr _, _)::_) as pvs ) -> Some ((OperatorComponent (op, idx), ext) :: pvs)
                 | _ -> None
 
               )
             | Some (Operator.CKeyword _) -> (
               match prev_reduced_stack with
-              | (((Expr _, _)::((OperatorComponent((pop, pidx))), _)::_) as pvs ) -> (
+              | Some (((Expr _, _)::((OperatorComponent((pop, pidx))), _)::_) as pvs ) -> (
                 if pop.id = op.id && pidx = idx - 2 then Some ((OperatorComponent ((op, idx)), ext) :: pvs)
                 else None
               )
@@ -249,46 +253,17 @@ module MixfixParser
           )
 
           | None -> (* no prev component, this marks a new start, reduce all possible stack elems with higher precedence*)
-          Some ((elem, ext) :: (try_reduce_all_stack_with_applicable_ops stack (OperatorsSet.all_operators_of_strictly_higher_precedence op)))
+            Option.bind (try_reduce_all_stack_with_applicable_ops stack (OperatorsSet.all_operators_of_strictly_higher_precedence op))
+              (fun next_stack -> 
+                Some ((elem, ext) :: next_stack)
+              )
           )
       | UnknownSymbol s_current -> (
         let unknown_symbol_expr = OperatorsSet.unknown_symbol_reduction s_current in
-        (* Some (try_reduce_all_stack_with_tail_applications_only (Expr unknown_symbol_expr :: stack)) *)
-        Some (try_reduce_all_stack_with_applicable_ops ((Expr (mark_extent unknown_symbol_expr ext), ext) :: stack) [])
-        (* combine two unknown symbols if no space in between
-          if space between two unknown symbols, treat as application,
-            if unknown symbols follows an expression, treat as application
-          *)
-          (* match stack with
-          | [] -> Some([UnknownSymbol s_current])
-          | UnknownSymbol s_prev :: stack' -> Some (UnknownSymbol (s_prev ^ s_current) :: stack')
-          | Expr _ :: _ -> (
-            (* let unknown_symbol_expr = OperatorsSet.unknown_symbol_reduction s_current in
-            Some (List.map (fun x -> Expr x) (List.rev (OperatorsSet.consecutive_expr_reduction expr unknown_symbol_expr)) @ stack') *)
-            Some (UnknownSymbol s_current :: stack)
-          )
-          | Space :: UnknownSymbol s_prev :: stack' -> (
-            let prev_expr = OperatorsSet.unknown_symbol_reduction s_prev in
-            let current_expr = OperatorsSet.unknown_symbol_reduction s_current in
-            Some (List.map (fun x -> Expr x ) (List.rev (OperatorsSet.consecutive_expr_reduction prev_expr current_expr)) @ stack')
-          )
-          | OperatorComponent _ :: _ -> (
-          )
-          | _ -> (
-            failwith ("127 Unknown symbol reduction not implemented " ^ show_stack stack)
-          ) *)
+        try_reduce_all_stack_with_applicable_ops ((Expr (mark_extent unknown_symbol_expr ext), ext) :: stack) []
       )
       
       | Space -> ( Some stack)
-        (* space is only relevant if the previous element on the stack is a unknown symbol
-        match stack with
-        | UnknownSymbol _ :: _ -> Some(elem :: stack)
-        | [] -> Some(stack)
-        | OperatorComponent _ :: _ -> Some(stack)
-        | Space :: _ -> Some(stack)
-        | Expr _ :: _ -> Some(stack)
-        | ArbitraryString _ :: _ -> failwith "140 Not implemented"
-      ) *)
       | _ -> failwith "138 Not implemented"
       
            
@@ -320,7 +295,12 @@ module MixfixParser
     let rec shift_reduce (failure_signal: stack -> t_charstream -> unit) (stack : stack) (char_stream: t_charstream) : (t_expr list) list = 
       let _ = if Flags.show_parse_steps() then print_endline ( show_input char_stream ^ ":" ^ show_stack stack) else () in
       if CS.is_eof char_stream then (
-        let final_stack = try_reduce_all_stack stack in
+        match try_reduce_all_stack stack with
+        | None -> (
+          failure_signal stack char_stream;
+          []
+        )
+        | Some final_stack -> 
         (* let _ = print_endline( "Finished Parsing") in *)
         (* let _ = print_endline ( show_input char_stream ^ ":" ^ show_stack final_stack) in *)
         let expr_list = List.filter_map (fun elem -> match elem with | (Expr expr, _) -> Some expr | _ -> None) final_stack in
@@ -352,7 +332,11 @@ module MixfixParser
             match get_next_op_component (op, idx) with 
             | None -> ( (* we are at the end, reduce the current stack*)
               match try_reduce_all_stack_with_applicable_ops stack [op] with
-              | stack'' -> shift_reduce failure_signal stack'' char_stream
+              | Some stack'' -> shift_reduce failure_signal stack'' char_stream
+              | None -> (
+                failure_signal stack char_stream;
+                []
+              )
               (* | None -> failwith ("254, elements on stack cannot receive reduction " ^ show_stack stack) *)
             )
             | Some (Operator.CArbitraryContent content_spec) -> (

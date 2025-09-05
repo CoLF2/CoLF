@@ -1,5 +1,5 @@
 module A = CoLFAbt.CoLFAbt
-module Extent = Extent.Extent
+module Extent = AbtLib.Extent
   
 
 module type ERRORS = sig

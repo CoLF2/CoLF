@@ -1,0 +1,14 @@
+nat : cotype.
+zero : nat.
+succ : nat -> nat.
+bool : cotype.
+true : bool.
+false : bool.
+iszero : nat -> bool -> cotype.
+%mode (iszero + -).
+iszero/z : (iszero zero true).
+iszero/sf : (iszero (succ X) false) -> (iszero (succ X) false).
+iszero/st : (iszero (succ X) true) -> (iszero (succ X) false).
+main : bool -> cotype.
+%mode (main -).
+main/def : (iszero zero C) -> (main C).

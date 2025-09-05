@@ -1,0 +1,51 @@
+type nat = +{'zero : 1, 'succ : nat}
+type bool = +{'true : 1, 'false : 1}
+
+
+proc iszero (d : bool) (x0 : nat)  = 
+  read x0 {
+    | 'zero(x0) => 
+      read x0 {
+        | () => 
+          cut y : 1
+            write y ()
+          write d 'true y
+      }
+    | 'succ(x0) => 
+      cut y : nat
+        cut y_1 : nat
+          id y_1 x0
+        write y 'succ y_1
+      cut y_1 : bool
+        iszero y_1 y
+      read y_1 {
+        | 'false(x0) => 
+          iszero_L0succ_cut_cut_L0false d x0
+        | 'true(x0) => 
+          iszero_L0succ_1_cut_cut_L0true d x0
+      }
+  }
+
+proc iszero_L0succ_1_cut_cut_L0true (d : bool) (x0 : 1)  = 
+  read x0 {
+    | () => 
+      cut y : 1
+        write y ()
+      write d 'false y
+  }
+
+proc iszero_L0succ_cut_cut_L0false (d : bool) (x0 : 1)  = 
+  read x0 {
+    | () => 
+      cut y : 1
+        write y ()
+      write d 'false y
+  }
+
+proc main (d : bool)  = 
+  cut y : nat
+    cut y_1 : 1
+      write y_1 ()
+    write y 'zero y_1
+  iszero d y
+
